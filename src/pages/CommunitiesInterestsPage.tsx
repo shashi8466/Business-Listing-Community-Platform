@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { TrendingUp, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import Footer from "@/components/Footer";
 import { INTEREST_CATEGORIES } from "@/types/community";
 
 const CommunitiesInterestsPage = () => {
+  const navigate = useNavigate();
+
   return (
     <>
       <Helmet>
@@ -22,12 +24,10 @@ const CommunitiesInterestsPage = () => {
 
         <main className="flex-1 py-8">
           <div className="container mx-auto px-4">
-            <Link to="/communities">
-              <Button variant="ghost" className="mb-6 gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Communities
-              </Button>
-            </Link>
+            <Button variant="ghost" className="mb-6 gap-2" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
 
             <div className="flex items-center gap-3 mb-8">
               <TrendingUp className="h-8 w-8 text-primary" />

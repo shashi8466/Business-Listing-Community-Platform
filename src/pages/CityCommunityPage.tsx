@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { MapPin, ArrowLeft, Users, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { US_CITIES } from "@/types";
 const CityCommunityPage = () => {
   const { citySlug } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   const cityName = citySlug?.replace(/-/g, " ") || "";
   const cityInfo = US_CITIES.find(
@@ -37,12 +38,10 @@ const CityCommunityPage = () => {
 
         <main className="flex-1 py-8">
           <div className="container mx-auto px-4">
-            <Link to="/communities/cities">
-              <Button variant="ghost" className="mb-6 gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Cities
-              </Button>
-            </Link>
+            <Button variant="ghost" className="mb-6 gap-2" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
 
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">

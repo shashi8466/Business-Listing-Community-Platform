@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { Building2, TrendingUp, Users, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -8,9 +9,9 @@ const benefits = [
   "Free basic listing, premium options available",
 ];
 
-const BusinessCTA = () => {
+const BusinessCTA = forwardRef<HTMLElement>((props, ref) => {
   return (
-    <section className="py-16 md:py-24 bg-muted/50">
+    <section ref={ref} className="py-16 md:py-24 bg-muted/50" {...props}>
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
           <div>
@@ -72,6 +73,8 @@ const BusinessCTA = () => {
       </div>
     </section>
   );
-};
+});
+
+BusinessCTA.displayName = "BusinessCTA";
 
 export default BusinessCTA;

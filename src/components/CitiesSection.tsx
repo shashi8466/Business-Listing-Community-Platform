@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -31,9 +32,9 @@ const CitiesSection = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-6xl mx-auto">
           {cities.map((city) => (
-            <a
+            <Link
               key={city.name}
-              href="#"
+              to={`/search?city=${encodeURIComponent(city.name)}`}
               className="group bg-card p-5 rounded-xl border border-border hover:border-primary hover:shadow-md transition-all duration-300"
             >
               <div className="flex items-start gap-3">
@@ -45,15 +46,17 @@ const CitiesSection = () => {
                   <p className="text-sm text-muted-foreground">{city.count} businesses</p>
                 </div>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
 
         <div className="text-center mt-10">
-          <Button variant="outline" size="lg" className="gap-2">
-            View All Cities
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          <Link to="/cities">
+            <Button variant="outline" size="lg" className="gap-2">
+              View All Cities
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

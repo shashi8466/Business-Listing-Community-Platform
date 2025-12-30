@@ -15,6 +15,7 @@ import ListBusinessPage from "./pages/ListBusinessPage";
 import CategoryPage from "./pages/CategoryPage";
 import CityPage from "./pages/CityPage";
 import CitiesPage from "./pages/CitiesPage";
+import CityLandingPage from "./pages/CityLandingPage";
 import CitySearchPage from "./pages/CitySearchPage";
 import FeaturedPage from "./pages/FeaturedPage";
 import TrendingPage from "./pages/TrendingPage";
@@ -62,6 +63,8 @@ const App = () => (
                 <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/business/:id/edit" element={<EditBusinessPage />} />
+                {/* City landing pages - must be after other specific routes */}
+                <Route path="/:city" element={<CityLandingPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

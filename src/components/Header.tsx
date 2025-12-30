@@ -9,7 +9,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, X, Search, User, Building2, LogOut, Heart, Settings, ChevronDown } from "lucide-react";
+import {
+  Menu,
+  X,
+  Search,
+  User,
+  Building2,
+  LogOut,
+  Heart,
+  Settings,
+  ChevronDown,
+  TrendingUp,
+  Award,
+  Crown,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,16 +40,20 @@ const Header = () => {
 
   const navLinks = [
     { name: "Services", href: "/search" },
+    { name: "Featured", href: "/featured" },
+    { name: "Trending", href: "/trending" },
     { name: "Cities", href: "/cities" },
-    { name: "Community", href: "/contact" },
     { name: "About", href: "/about" },
   ];
 
-  const initials = userProfile?.displayName
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase() || user?.email?.[0]?.toUpperCase() || "U";
+  const initials =
+    userProfile?.displayName
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() ||
+    user?.email?.[0]?.toUpperCase() ||
+    "U";
 
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
@@ -51,7 +68,7 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -71,7 +88,7 @@ const Header = () => {
                 Search
               </Button>
             </Link>
-            
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -108,7 +125,10 @@ const Header = () => {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer gap-2 text-destructive">
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="cursor-pointer gap-2 text-destructive"
+                  >
                     <LogOut className="h-4 w-4" />
                     Logout
                   </DropdownMenuItem>
@@ -122,7 +142,7 @@ const Header = () => {
                 </Button>
               </Link>
             )}
-            
+
             <Link to="/list-business">
               <Button size="sm" className="gap-2">
                 <Building2 className="h-4 w-4" />
@@ -153,13 +173,15 @@ const Header = () => {
                 <Link
                   key={link.name}
                   to={link.href}
-                  className="px-4 py-2 text-foreground/80 hover:text-primary hover:bg-muted transition-colors rounded-lg"
+                  className="px-4 py-2 text-foreground/80 hover:text-primary hover:bg-muted transition-colors rounded-lg flex items-center gap-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
+                  {link.name === "Featured" && <Award className="h-4 w-4" />}
+                  {link.name === "Trending" && <TrendingUp className="h-4 w-4" />}
                   {link.name}
                 </Link>
               ))}
-              
+
               {user && (
                 <>
                   <div className="border-t border-border my-2" />
@@ -189,10 +211,14 @@ const Header = () => {
                   </Link>
                 </>
               )}
-              
+
               <div className="flex flex-col gap-2 mt-4 px-4">
                 {user ? (
-                  <Button variant="outline" className="w-full gap-2" onClick={handleSignOut}>
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2"
+                    onClick={handleSignOut}
+                  >
                     <LogOut className="h-4 w-4" />
                     Logout
                   </Button>

@@ -1,39 +1,32 @@
 import { forwardRef } from "react";
+import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { CATEGORIES } from "@/types";
 
 const Footer = forwardRef<HTMLElement>((props, ref) => {
-  const footerLinks = {
-    services: [
-      "Tutors & Coaching",
-      "Restaurants & Food",
-      "Real Estate",
-      "Legal & Finance",
-      "Events & Entertainment",
-      "Health & Wellness",
-    ],
-    company: [
-      "About Us",
-      "Careers",
-      "Press",
-      "Blog",
-      "Contact Us",
-      "Partner with Us",
-    ],
-    support: [
-      "Help Center",
-      "Safety Guidelines",
-      "Community Guidelines",
-      "Report a Problem",
-      "Advertise",
-      "Sitemap",
-    ],
-    legal: [
-      "Privacy Policy",
-      "Terms of Service",
-      "Cookie Policy",
-      "Accessibility",
-    ],
-  };
+  const serviceLinks = CATEGORIES.slice(0, 6).map((cat) => ({
+    name: cat.name,
+    href: `/category/${cat.id}`,
+  }));
+
+  const companyLinks = [
+    { name: "About Us", href: "/about" },
+    { name: "Contact Us", href: "/contact" },
+    { name: "Featured", href: "/featured" },
+    { name: "Trending", href: "/trending" },
+    { name: "List Your Business", href: "/list-business" },
+  ];
+
+  const supportLinks = [
+    { name: "Help Center", href: "/contact" },
+    { name: "Browse Cities", href: "/cities" },
+    { name: "Search Services", href: "/search" },
+  ];
+
+  const legalLinks = [
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms of Service", href: "/terms" },
+  ];
 
   const socialLinks = [
     { icon: Facebook, href: "#", label: "Facebook" },
@@ -48,14 +41,15 @@ const Footer = forwardRef<HTMLElement>((props, ref) => {
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <a href="/" className="flex items-center gap-2 mb-4">
+            <Link to="/" className="flex items-center gap-2 mb-4">
               <span className="text-2xl font-bold">
                 <span className="text-primary">d4</span>
                 <span className="text-sidebar-foreground">desi</span>
               </span>
-            </a>
+            </Link>
             <p className="text-sidebar-foreground/80 text-sm mb-6">
-              Connecting the Desi community across the United States with trusted businesses and services.
+              Connecting the Desi community across the United States with trusted
+              businesses and services.
             </p>
             <div className="flex gap-3">
               {socialLinks.map((social) => (
@@ -75,14 +69,14 @@ const Footer = forwardRef<HTMLElement>((props, ref) => {
           <div>
             <h3 className="font-semibold mb-4">Services</h3>
             <ul className="space-y-2">
-              {footerLinks.services.map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
+              {serviceLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.href}
                     className="text-sm text-sidebar-foreground/70 hover:text-primary transition-colors"
                   >
-                    {link}
-                  </a>
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -92,14 +86,14 @@ const Footer = forwardRef<HTMLElement>((props, ref) => {
           <div>
             <h3 className="font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
-              {footerLinks.company.map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
+              {companyLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.href}
                     className="text-sm text-sidebar-foreground/70 hover:text-primary transition-colors"
                   >
-                    {link}
-                  </a>
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -109,14 +103,14 @@ const Footer = forwardRef<HTMLElement>((props, ref) => {
           <div>
             <h3 className="font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
-              {footerLinks.support.map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
+              {supportLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.href}
                     className="text-sm text-sidebar-foreground/70 hover:text-primary transition-colors"
                   >
-                    {link}
-                  </a>
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -128,11 +122,15 @@ const Footer = forwardRef<HTMLElement>((props, ref) => {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm text-sidebar-foreground/70">
                 <Mail className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                support@d4desi.com
+                <a href="mailto:support@d4desi.com" className="hover:text-primary">
+                  support@d4desi.com
+                </a>
               </li>
               <li className="flex items-start gap-3 text-sm text-sidebar-foreground/70">
                 <Phone className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                1-800-D4-DESI
+                <a href="tel:1-800-D4-DESI" className="hover:text-primary">
+                  1-800-D4-DESI
+                </a>
               </li>
               <li className="flex items-start gap-3 text-sm text-sidebar-foreground/70">
                 <MapPin className="h-5 w-5 flex-shrink-0 mt-0.5" />
@@ -148,14 +146,14 @@ const Footer = forwardRef<HTMLElement>((props, ref) => {
             © {new Date().getFullYear()} d4desi.com. All rights reserved.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            {footerLinks.legal.map((link) => (
-              <a
-                key={link}
-                href="#"
+            {legalLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.href}
                 className="text-sm text-sidebar-foreground/60 hover:text-primary transition-colors"
               >
-                {link}
-              </a>
+                {link.name}
+              </Link>
             ))}
           </div>
         </div>

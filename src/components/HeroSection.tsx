@@ -1,9 +1,23 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import heroPattern from "@/assets/hero-pattern.jpg";
+import { US_CITIES } from "@/types";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+
   const popularSearches = [
     "Indian Restaurants",
     "Tutors",
@@ -11,6 +25,18 @@ const HeroSection = () => {
     "Temples",
     "Immigration Lawyers",
   ];
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("q", searchQuery);
+    if (selectedCity) params.set("city", selectedCity);
+    navigate(`/search?${params.toString()}`);
+  };
+
+  const handlePopularSearch = (term: string) => {
+    navigate(`/search?q=${encodeURIComponent(term)}`);
+  };
 
   return (
     <section
@@ -38,7 +64,7 @@ const HeroSection = () => {
         </p>
 
         {/* Search Box */}
-        <div className="bg-card rounded-xl p-4 md:p-6 shadow-xl max-w-4xl mx-auto">
+        <form onSubmit={handleSearch} className="bg-card rounded-xl p-4 md:p-6 shadow-xl max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -47,20 +73,28 @@ const HeroSection = () => {
                 name="search"
                 type="text"
                 placeholder="What are you looking for?"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-12 h-12 md:h-14 text-base border-border bg-background"
               />
             </div>
-            <div className="flex-1 relative">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                id="hero-location"
-                name="location"
-                type="text"
-                placeholder="City, State or ZIP"
-                className="pl-12 h-12 md:h-14 text-base border-border bg-background"
-              />
+            <div className="flex-1">
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <SelectTrigger className="h-12 md:h-14 text-base pl-10">
+                  <MapPin className="absolute left-4 h-5 w-5 text-muted-foreground" />
+                  <SelectValue placeholder="All Cities" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover max-h-60">
+                  <SelectItem value="all">All Cities</SelectItem>
+                  {US_CITIES.map((city) => (
+                    <SelectItem key={city.city} value={city.city}>
+                      {city.city}, {city.state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Button size="lg" className="h-12 md:h-14 px-8 text-base font-semibold">
+            <Button type="submit" size="lg" className="h-12 md:h-14 px-8 text-base font-semibold">
               Search
             </Button>
           </div>
@@ -71,13 +105,15 @@ const HeroSection = () => {
             {popularSearches.map((search) => (
               <button
                 key={search}
+                type="button"
+                onClick={() => handlePopularSearch(search)}
                 className="text-sm text-primary hover:text-secondary transition-colors hover:underline"
               >
                 {search}
               </button>
             ))}
           </div>
-        </div>
+        </form>
 
         {/* Stats */}
         <div className="mt-12 flex flex-wrap justify-center gap-8 md:gap-16 text-primary-foreground">

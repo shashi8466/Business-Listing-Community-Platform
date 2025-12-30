@@ -106,12 +106,26 @@ const SearchPage = () => {
                     className="pl-10 h-12"
                   />
                 </div>
+                {/* Category dropdown - visible on mobile, hidden on desktop */}
+                <Select value={selectedCategory || "all"} onValueChange={(val) => setSelectedCategory(val === "all" ? "" : val)}>
+                  <SelectTrigger id="category-filter" className="w-full md:hidden h-12">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover">
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {CATEGORIES.map(cat => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Select value={selectedCity || "all"} onValueChange={(val) => setSelectedCity(val === "all" ? "" : val)}>
                   <SelectTrigger id="city-filter" className="w-full md:w-48 h-12">
                     <MapPin className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="All Cities" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover">
                     <SelectItem value="all">All Cities</SelectItem>
                     {US_CITIES.map(city => (
                       <SelectItem key={city.city} value={city.city}>
@@ -122,15 +136,6 @@ const SearchPage = () => {
                 </Select>
                 <Button type="submit" className="h-12 px-8">
                   Search
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12 md:hidden"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <SlidersHorizontal className="h-4 w-4 mr-2" />
-                  Filters
                 </Button>
               </form>
 

@@ -14,11 +14,26 @@ import {
   Store,
   CheckCircle2,
   Clock,
+  Eye,
+  TrendingUp,
+  Phone,
+  Mail,
+  BarChart3,
+  Users,
+  Reply,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,7 +41,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserReviews } from "@/hooks/useUserReviews";
 import { useMyBusinesses } from "@/hooks/useMyBusinesses";
-import { CATEGORIES } from "@/types";
+import { useLeads } from "@/hooks/useLeads";
+import { CATEGORIES, LeadStatus } from "@/types";
 
 const DashboardPage = () => {
   const { user, userProfile, signOut, loading, updateUserProfile, toggleFavorite } = useAuth();
@@ -34,12 +50,19 @@ const DashboardPage = () => {
   const { favorites, loading: favoritesLoading } = useFavorites();
   const { reviews, loading: reviewsLoading, deleteReview } = useUserReviews(user?.uid);
   const { businesses: myBusinesses, loading: businessesLoading, deleteBusiness } = useMyBusinesses(user?.uid);
+  
+  // Get first business ID for leads (business owners typically manage one business)
+  const firstBusinessId = myBusinesses.length > 0 ? myBusinesses[0].id : undefined;
+  const { leads, loading: leadsLoading, getLeadStats, updateLeadStatus } = useLeads({ businessId: firstBusinessId });
+  const leadStats = getLeadStats();
 
   const getCategoryName = (id: string) =>
     CATEGORIES.find((c) => c.id === id)?.name || id;
   
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<string | null>(null);
+  const [leadNotes, setLeadNotes] = useState("");
   const [profileForm, setProfileForm] = useState({
     displayName: "",
     phone: "",
@@ -135,6 +158,31 @@ const DashboardPage = () => {
     }
   };
 
+  const handleUpdateLeadStatus = async (leadId: string, status: LeadStatus) => {
+    try {
+      await updateLeadStatus(leadId, status, leadNotes || undefined);
+      toast({
+        title: "Lead Updated",
+        description: `Lead marked as ${status}.`,
+      });
+      setSelectedLead(null);
+      setLeadNotes("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update lead.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Calculate total views across all businesses
+  const totalViews = myBusinesses.reduce((sum, b) => sum + (b.views || 0), 0);
+  const totalReviews = myBusinesses.reduce((sum, b) => sum + b.reviewCount, 0);
+  const avgRating = myBusinesses.length > 0 
+    ? (myBusinesses.reduce((sum, b) => sum + b.rating, 0) / myBusinesses.length).toFixed(1) 
+    : "0";
+
   return (
     <>
       <Helmet>
@@ -165,6 +213,19 @@ const DashboardPage = () => {
                   </div>
 
                   <nav className="space-y-1">
+                    {myBusinesses.length > 0 && (
+                      <button
+                        onClick={() => setActiveTab("overview")}
+                        className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors ${
+                          activeTab === "overview"
+                            ? "bg-primary text-primary-foreground"
+                            : "text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        <BarChart3 className="h-4 w-4" />
+                        Overview
+                      </button>
+                    )}
                     <button
                       onClick={() => setActiveTab("profile")}
                       className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors ${
@@ -209,6 +270,24 @@ const DashboardPage = () => {
                       <Store className="h-4 w-4" />
                       My Listings
                     </button>
+                    {myBusinesses.length > 0 && (
+                      <button
+                        onClick={() => setActiveTab("leads")}
+                        className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors ${
+                          activeTab === "leads"
+                            ? "bg-primary text-primary-foreground"
+                            : "text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        <Users className="h-4 w-4" />
+                        Leads
+                        {leadStats.pending > 0 && (
+                          <Badge variant="destructive" className="ml-auto text-xs px-1.5 py-0">
+                            {leadStats.pending}
+                          </Badge>
+                        )}
+                      </button>
+                    )}
                     <button
                       onClick={() => setActiveTab("inquiries")}
                       className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors ${
@@ -251,6 +330,270 @@ const DashboardPage = () => {
 
               {/* Main Content */}
               <div className="lg:col-span-3">
+                {/* Overview Tab - Business Analytics */}
+                {activeTab === "overview" && myBusinesses.length > 0 && (
+                  <div className="space-y-6">
+                    <h1 className="text-2xl font-bold text-foreground">Business Overview</h1>
+                    
+                    {/* Analytics Cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="bg-card border border-border rounded-xl p-5">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-primary/10 rounded-lg">
+                            <Eye className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold text-foreground">{totalViews}</p>
+                            <p className="text-sm text-muted-foreground">Total Views</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-card border border-border rounded-xl p-5">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-accent/10 rounded-lg">
+                            <Users className="h-5 w-5 text-accent" />
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold text-foreground">{leadStats.total}</p>
+                            <p className="text-sm text-muted-foreground">Total Leads</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-card border border-border rounded-xl p-5">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-secondary/50 rounded-lg">
+                            <MessageSquare className="h-5 w-5 text-secondary-foreground" />
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold text-foreground">{totalReviews}</p>
+                            <p className="text-sm text-muted-foreground">Reviews</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-card border border-border rounded-xl p-5">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-accent/10 rounded-lg">
+                            <Star className="h-5 w-5 text-accent" />
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold text-foreground">{avgRating}</p>
+                            <p className="text-sm text-muted-foreground">Avg Rating</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Lead Status Summary */}
+                    <div className="bg-card border border-border rounded-xl p-6">
+                      <h3 className="font-semibold text-foreground mb-4">Lead Status</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="text-center p-4 bg-amber-500/10 rounded-lg">
+                          <p className="text-2xl font-bold text-amber-600">{leadStats.pending}</p>
+                          <p className="text-sm text-muted-foreground">Pending</p>
+                        </div>
+                        <div className="text-center p-4 bg-blue-500/10 rounded-lg">
+                          <p className="text-2xl font-bold text-blue-600">{leadStats.contacted}</p>
+                          <p className="text-sm text-muted-foreground">Contacted</p>
+                        </div>
+                        <div className="text-center p-4 bg-green-500/10 rounded-lg">
+                          <p className="text-2xl font-bold text-green-600">{leadStats.closed}</p>
+                          <p className="text-sm text-muted-foreground">Closed</p>
+                        </div>
+                      </div>
+                      {leadStats.pending > 0 && (
+                        <Button 
+                          className="w-full mt-4" 
+                          onClick={() => setActiveTab("leads")}
+                        >
+                          View {leadStats.pending} Pending Lead{leadStats.pending > 1 ? 's' : ''}
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="bg-card border border-border rounded-xl p-6">
+                      <h3 className="font-semibold text-foreground mb-4">Quick Actions</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <Link to={`/business/${myBusinesses[0]?.id}/edit`}>
+                          <Button variant="outline" className="w-full gap-2">
+                            <Edit className="h-4 w-4" />
+                            Edit Listing
+                          </Button>
+                        </Link>
+                        <Link to={`/business/${myBusinesses[0]?.id}`}>
+                          <Button variant="outline" className="w-full gap-2">
+                            <Eye className="h-4 w-4" />
+                            View Profile
+                          </Button>
+                        </Link>
+                        <Button 
+                          variant="outline" 
+                          className="w-full gap-2"
+                          onClick={() => setActiveTab("leads")}
+                        >
+                          <Users className="h-4 w-4" />
+                          Manage Leads
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Leads Tab */}
+                {activeTab === "leads" && (
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <h1 className="text-2xl font-bold text-foreground">Lead Management</h1>
+                      <div className="flex gap-2">
+                        <Badge variant="outline" className="text-amber-600 border-amber-600">
+                          {leadStats.pending} Pending
+                        </Badge>
+                        <Badge variant="outline" className="text-blue-600 border-blue-600">
+                          {leadStats.contacted} Contacted
+                        </Badge>
+                        <Badge variant="outline" className="text-green-600 border-green-600">
+                          {leadStats.closed} Closed
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {leadsLoading ? (
+                      <div className="space-y-4">
+                        {[1, 2, 3].map(i => (
+                          <div key={i} className="bg-card border border-border rounded-xl p-5 animate-pulse space-y-3">
+                            <div className="h-5 bg-muted rounded w-1/3" />
+                            <div className="h-4 bg-muted rounded w-full" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : leads.length === 0 ? (
+                      <div className="bg-card border border-border rounded-xl p-12 text-center">
+                        <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground mb-2">No leads yet</p>
+                        <p className="text-sm text-muted-foreground">
+                          When customers send inquiries, they'll appear here.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {leads.map(lead => (
+                          <div key={lead.id} className="bg-card border border-border rounded-xl p-5">
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h3 className="font-semibold text-foreground">{lead.name}</h3>
+                                  <Badge 
+                                    variant={
+                                      lead.status === 'pending' ? 'secondary' :
+                                      lead.status === 'contacted' ? 'default' : 'outline'
+                                    }
+                                    className={
+                                      lead.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                      lead.status === 'contacted' ? 'bg-blue-100 text-blue-700' :
+                                      'bg-green-100 text-green-700'
+                                    }
+                                  >
+                                    {lead.status}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  {new Date(lead.createdAt).toLocaleDateString()} • {lead.businessName}
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                <a href={`mailto:${lead.email}`}>
+                                  <Button variant="outline" size="sm">
+                                    <Mail className="h-4 w-4" />
+                                  </Button>
+                                </a>
+                                {lead.phone && (
+                                  <a href={`tel:${lead.phone}`}>
+                                    <Button variant="outline" size="sm">
+                                      <Phone className="h-4 w-4" />
+                                    </Button>
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <p className="text-muted-foreground mb-4">{lead.message}</p>
+                            
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                              <Mail className="h-4 w-4" />
+                              {lead.email}
+                              {lead.phone && (
+                                <>
+                                  <span className="mx-2">•</span>
+                                  <Phone className="h-4 w-4" />
+                                  {lead.phone}
+                                </>
+                              )}
+                            </div>
+
+                            {selectedLead === lead.id ? (
+                              <div className="space-y-3 pt-3 border-t border-border">
+                                <Textarea
+                                  placeholder="Add notes about this lead..."
+                                  value={leadNotes}
+                                  onChange={(e) => setLeadNotes(e.target.value)}
+                                  rows={2}
+                                />
+                                <div className="flex gap-2">
+                                  <Button 
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleUpdateLeadStatus(lead.id, 'contacted')}
+                                  >
+                                    Mark Contacted
+                                  </Button>
+                                  <Button 
+                                    size="sm"
+                                    onClick={() => handleUpdateLeadStatus(lead.id, 'closed')}
+                                  >
+                                    Mark Closed
+                                  </Button>
+                                  <Button 
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => { setSelectedLead(null); setLeadNotes(""); }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex gap-2 pt-3 border-t border-border">
+                                {lead.status === 'pending' && (
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => setSelectedLead(lead.id)}
+                                  >
+                                    Update Status
+                                  </Button>
+                                )}
+                                {lead.status === 'contacted' && (
+                                  <Button 
+                                    size="sm"
+                                    onClick={() => handleUpdateLeadStatus(lead.id, 'closed')}
+                                  >
+                                    Mark Closed
+                                  </Button>
+                                )}
+                                {lead.notes && (
+                                  <p className="text-sm text-muted-foreground italic ml-auto">
+                                    Notes: {lead.notes}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {activeTab === "profile" && (
                   <div className="bg-card border border-border rounded-xl p-6">
                     <div className="flex items-center justify-between mb-6">

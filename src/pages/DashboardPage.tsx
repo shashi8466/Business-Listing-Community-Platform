@@ -1,16 +1,19 @@
 import { useState, useEffect } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { 
-  User, 
-  Heart, 
-  Star, 
-  LogOut, 
-  MapPin, 
+import {
+  User,
+  Heart,
+  Star,
+  LogOut,
+  MapPin,
   Building2,
   MessageSquare,
   Edit,
-  Trash2
+  Trash2,
+  Store,
+  CheckCircle2,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,12 +25,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserReviews } from "@/hooks/useUserReviews";
+import { useMyBusinesses } from "@/hooks/useMyBusinesses";
+import { CATEGORIES } from "@/types";
 
 const DashboardPage = () => {
   const { user, userProfile, signOut, loading, updateUserProfile, toggleFavorite } = useAuth();
   const { toast } = useToast();
   const { favorites, loading: favoritesLoading } = useFavorites();
   const { reviews, loading: reviewsLoading, deleteReview } = useUserReviews(user?.uid);
+  const { businesses: myBusinesses, loading: businessesLoading, deleteBusiness } = useMyBusinesses(user?.uid);
+
+  const getCategoryName = (id: string) =>
+    CATEGORIES.find((c) => c.id === id)?.name || id;
   
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
@@ -110,6 +119,22 @@ const DashboardPage = () => {
     }
   };
 
+  const handleDeleteBusiness = async (businessId: string) => {
+    try {
+      await deleteBusiness(businessId);
+      toast({
+        title: "Business Deleted",
+        description: "Your listing has been removed.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete business.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -172,6 +197,17 @@ const DashboardPage = () => {
                     >
                       <Star className="h-4 w-4" />
                       My Reviews
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("listings")}
+                      className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors ${
+                        activeTab === "listings"
+                          ? "bg-primary text-primary-foreground"
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Store className="h-4 w-4" />
+                      My Listings
                     </button>
                     <button
                       onClick={() => setActiveTab("inquiries")}
@@ -405,6 +441,116 @@ const DashboardPage = () => {
                         <Button>Find Businesses</Button>
                       </Link>
                     </div>
+                  </div>
+                )}
+
+                {activeTab === "listings" && (
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <h1 className="text-2xl font-bold text-foreground">My Listings</h1>
+                      <Link to="/list-business">
+                        <Button className="gap-2">
+                          <Building2 className="h-4 w-4" />
+                          Add New
+                        </Button>
+                      </Link>
+                    </div>
+                    {businessesLoading ? (
+                      <div className="space-y-4">
+                        {[1, 2].map((i) => (
+                          <div
+                            key={i}
+                            className="bg-card border border-border rounded-xl p-4 animate-pulse flex gap-4"
+                          >
+                            <div className="w-24 h-24 bg-muted rounded-lg" />
+                            <div className="flex-1 space-y-2">
+                              <div className="h-5 bg-muted rounded w-1/3" />
+                              <div className="h-4 bg-muted rounded w-1/2" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : myBusinesses.length === 0 ? (
+                      <div className="bg-card border border-border rounded-xl p-12 text-center">
+                        <Store className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground mb-4">
+                          You haven't listed any businesses yet
+                        </p>
+                        <Link to="/list-business">
+                          <Button>List Your Business</Button>
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {myBusinesses.map((business) => (
+                          <div
+                            key={business.id}
+                            className="bg-card border border-border rounded-xl p-4 flex gap-4"
+                          >
+                            <img
+                              src={business.images[0] || "/placeholder.svg"}
+                              alt={business.name}
+                              className="w-24 h-24 rounded-lg object-cover flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Badge variant="secondary">
+                                  {getCategoryName(business.category)}
+                                </Badge>
+                                {business.approved ? (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-primary border-primary gap-1"
+                                  >
+                                    <CheckCircle2 className="h-3 w-3" />
+                                    Approved
+                                  </Badge>
+                                ) : (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-amber-600 border-amber-600 gap-1"
+                                  >
+                                    <Clock className="h-3 w-3" />
+                                    Pending
+                                  </Badge>
+                                )}
+                              </div>
+                              <Link
+                                to={`/business/${business.id}`}
+                                className="font-semibold text-foreground hover:text-primary transition-colors"
+                              >
+                                {business.name}
+                              </Link>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                                <Star className="h-4 w-4 fill-accent text-accent" />
+                                {business.rating} ({business.reviewCount} reviews)
+                              </div>
+                              <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                                <MapPin className="h-4 w-4" />
+                                {business.address.city}, {business.address.state}
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              <Link to={`/business/${business.id}`}>
+                                <Button variant="outline" size="sm" className="w-full">
+                                  <Edit className="h-4 w-4 mr-1" />
+                                  View
+                                </Button>
+                              </Link>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteBusiness(business.id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

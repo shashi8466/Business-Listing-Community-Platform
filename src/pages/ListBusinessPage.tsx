@@ -140,7 +140,7 @@ const ListBusinessPage = () => {
         reviewCount: 0,
         featured: false,
         verified: false,
-        approved: true,
+        approved: false,
         active: true,
         services: formData.services,
         hours: {},
@@ -149,11 +149,11 @@ const ListBusinessPage = () => {
       });
 
       toast({
-        title: "Business Listed!",
-        description: "Your business is now live.",
+        title: "Business Submitted!",
+        description: "Your listing is pending approval and will be reviewed within 24-48 hours.",
       });
 
-      navigate(`/business/${docRef.id}`);
+      navigate("/dashboard");
     } catch (error) {
       console.error("Failed to submit business:", error);
       toast({

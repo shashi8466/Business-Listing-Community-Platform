@@ -159,8 +159,8 @@ const DashboardPage = () => {
                       {userProfile?.displayName || user.email}
                     </h2>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
-                    <Badge variant="secondary" className="mt-2">
-                      {userProfile?.role === 'business' ? 'Business Owner' : 'Member'}
+                    <Badge variant={userProfile?.role === 'admin' ? 'default' : 'secondary'} className="mt-2">
+                      {userProfile?.role === 'admin' ? 'Admin' : userProfile?.role === 'business' ? 'Business Owner' : 'Member'}
                     </Badge>
                   </div>
 
@@ -222,9 +222,17 @@ const DashboardPage = () => {
                     </button>
                   </nav>
 
-                  <div className="mt-6 pt-6 border-t border-border">
+                  <div className="mt-6 pt-6 border-t border-border space-y-3">
+                    {userProfile?.role === 'admin' && (
+                      <Link to="/admin">
+                        <Button variant="default" className="w-full gap-2">
+                          <Store className="h-4 w-4" />
+                          Admin Panel
+                        </Button>
+                      </Link>
+                    )}
                     <Link to="/list-business">
-                      <Button variant="outline" className="w-full gap-2 mb-3">
+                      <Button variant="outline" className="w-full gap-2">
                         <Building2 className="h-4 w-4" />
                         List Your Business
                       </Button>

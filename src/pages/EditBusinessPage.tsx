@@ -10,11 +10,9 @@ import {
   Phone,
   Mail,
   Globe,
-  Trash2,
   Loader2,
 } from "lucide-react";
 import { doc, updateDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +29,8 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useBusiness } from "@/hooks/useBusiness";
-import { getFirebaseDb, getFirebaseStorage } from "@/lib/firebase";
+import { getFirebaseDb } from "@/lib/firebase";
+import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES, US_CITIES } from "@/types";
 
 const EditBusinessPage = () => {
@@ -143,11 +142,19 @@ const EditBusinessPage = () => {
 
     setUploadingImages(true);
     try {
-      const storage = await getFirebaseStorage();
       const uploadPromises = Array.from(files).map(async (file) => {
-        const fileRef = ref(storage, `businesses/${id}/${Date.now()}-${file.name}`);
-        await uploadBytes(fileRef, file);
-        return getDownloadURL(fileRef);
+        const fileName = `${id}/${Date.now()}-${file.name}`;
+        const { error } = await supabase.storage
+          .from('business-images')
+          .upload(fileName, file);
+        
+        if (error) throw error;
+        
+        const { data: urlData } = supabase.storage
+          .from('business-images')
+          .getPublicUrl(fileName);
+        
+        return urlData.publicUrl;
       });
 
       const urls = await Promise.all(uploadPromises);
@@ -171,11 +178,12 @@ const EditBusinessPage = () => {
 
   const handleRemoveImage = async (imageUrl: string) => {
     try {
-      // Try to delete from storage if it's a Firebase URL
-      if (imageUrl.includes("firebase")) {
-        const storage = await getFirebaseStorage();
-        const imageRef = ref(storage, imageUrl);
-        await deleteObject(imageRef).catch(() => {}); // Ignore if not found
+      // Try to delete from Lovable Cloud storage
+      if (imageUrl.includes('supabase')) {
+        const path = imageUrl.split('/business-images/')[1];
+        if (path) {
+          await supabase.storage.from('business-images').remove([path]);
+        }
       }
       setImages((prev) => prev.filter((img) => img !== imageUrl));
     } catch (error) {

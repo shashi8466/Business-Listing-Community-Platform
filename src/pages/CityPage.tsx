@@ -4,36 +4,14 @@ import { ArrowRight, Star, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { CATEGORIES, US_CITIES, Business } from "@/types";
-
-const sampleBusinesses: Business[] = [
-  {
-    id: "1", ownerId: "o1", name: "Spice Symphony", slug: "spice-symphony",
-    description: "Authentic North Indian cuisine", category: "restaurants",
-    address: { street: "123 Main St", city: "New York", state: "NY", zipCode: "10001" },
-    phone: "(212) 555-0123", email: "info@spice.com",
-    images: ["https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&h=300&fit=crop"],
-    rating: 4.8, reviewCount: 245, featured: true, verified: true,
-    services: ["Dine-in"], hours: {}, createdAt: new Date(), updatedAt: new Date()
-  },
-  {
-    id: "4", ownerId: "o4", name: "Patel Immigration Law", slug: "patel-law",
-    description: "Immigration attorneys", category: "legal",
-    address: { street: "321 Pine St", city: "New York", state: "NY", zipCode: "10002" },
-    phone: "(212) 555-0321", email: "info@patel.com",
-    images: ["https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=300&fit=crop"],
-    rating: 4.9, reviewCount: 198, featured: true, verified: true,
-    services: ["H1B", "Green Card"], hours: {}, createdAt: new Date(), updatedAt: new Date()
-  },
-];
+import { useBusinesses } from "@/hooks/useBusinesses";
+import { CATEGORIES, US_CITIES } from "@/types";
 
 const CityPage = () => {
   const { cityName } = useParams<{ cityName: string }>();
   
   const city = US_CITIES.find(c => c.city.toLowerCase().replace(/\s+/g, '-') === cityName?.toLowerCase());
-  const businesses = sampleBusinesses.filter(b => 
-    city && b.address.city.toLowerCase() === city.city.toLowerCase()
-  );
+  const { businesses, loading } = useBusinesses({ city: city?.city, limitCount: 9 });
 
   if (!city) {
     return (
@@ -107,7 +85,20 @@ const CityPage = () => {
                 </Link>
               </div>
 
-              {businesses.length === 0 ? (
+              {loading ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-card border border-border rounded-xl overflow-hidden animate-pulse">
+                      <div className="h-48 bg-muted" />
+                      <div className="p-5 space-y-3">
+                        <div className="h-4 bg-muted rounded w-1/2" />
+                        <div className="h-6 bg-muted rounded w-3/4" />
+                        <div className="h-4 bg-muted rounded w-full" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : businesses.length === 0 ? (
                 <div className="text-center py-12 bg-muted/50 rounded-xl">
                   <p className="text-muted-foreground mb-4">No businesses listed in {city.city} yet</p>
                   <Link to="/list-business">
@@ -122,7 +113,7 @@ const CityPage = () => {
                       to={`/business/${business.id}`}
                       className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all"
                     >
-                      <img src={business.images[0]} alt={business.name} className="w-full h-48 object-cover" />
+                      <img src={business.images[0] || "/placeholder.svg"} alt={business.name} className="w-full h-48 object-cover" />
                       <div className="p-5">
                         <div className="flex items-center gap-1 mb-2">
                           <Star className="h-4 w-4 fill-accent text-accent" />

@@ -1,13 +1,19 @@
 // Types for d4desi platform
 
+export type UserRole = 'user' | 'business' | 'admin';
+
 export interface User {
   id: string;
   email: string;
   displayName: string;
   photoURL?: string;
   phone?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
   createdAt: Date;
-  role: 'user' | 'business_owner';
+  role: UserRole;
+  favorites?: string[]; // Array of business IDs
 }
 
 export interface Business {
@@ -32,10 +38,14 @@ export interface Business {
   reviewCount: number;
   featured: boolean;
   verified: boolean;
+  approved: boolean;
+  active: boolean;
   services: string[];
+  serviceAreas?: string[];
   hours: {
     [day: string]: { open: string; close: string } | 'closed';
   };
+  views?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,19 +60,30 @@ export interface Review {
   title: string;
   content: string;
   helpful: number;
+  ownerReply?: {
+    content: string;
+    createdAt: Date;
+  };
+  reported?: boolean;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
-export interface Inquiry {
+export type LeadStatus = 'pending' | 'contacted' | 'closed' | 'spam';
+
+export interface Lead {
   id: string;
   businessId: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  userPhone?: string;
+  businessName: string;
+  userId?: string;
+  name: string;
+  email: string;
+  phone?: string;
   message: string;
-  status: 'pending' | 'responded' | 'closed';
+  status: LeadStatus;
+  notes?: string;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 export interface SavedBusiness {
@@ -82,6 +103,9 @@ export const CATEGORIES = [
   { id: 'home-services', name: 'Home Services', icon: 'Wrench' },
   { id: 'jobs', name: 'Jobs & Professional', icon: 'Briefcase' },
   { id: 'community', name: 'Community & Religious', icon: 'Users' },
+  { id: 'beauty', name: 'Beauty & Salon', icon: 'Sparkles' },
+  { id: 'travel', name: 'Travel & Transport', icon: 'Plane' },
+  { id: 'grocery', name: 'Grocery & Stores', icon: 'ShoppingCart' },
 ] as const;
 
 export const US_CITIES = [
@@ -100,4 +124,17 @@ export const US_CITIES = [
   { city: 'San Jose', state: 'CA' },
   { city: 'Austin', state: 'TX' },
   { city: 'Philadelphia', state: 'PA' },
+  { city: 'San Diego', state: 'CA' },
+  { city: 'Miami', state: 'FL' },
+  { city: 'Detroit', state: 'MI' },
+  { city: 'Minneapolis', state: 'MN' },
+  { city: 'Charlotte', state: 'NC' },
+] as const;
+
+export const US_STATES = [
+  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+  'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+  'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+  'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+  'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC'
 ] as const;

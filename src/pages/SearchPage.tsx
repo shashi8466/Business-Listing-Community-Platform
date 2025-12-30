@@ -74,13 +74,13 @@ const SearchPage = () => {
                     className="pl-10 h-12"
                   />
                 </div>
-                <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <Select value={selectedCity || "all"} onValueChange={(val) => setSelectedCity(val === "all" ? "" : val)}>
                   <SelectTrigger className="w-full md:w-48 h-12">
                     <MapPin className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="All Cities" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Cities</SelectItem>
+                    <SelectItem value="all">All Cities</SelectItem>
                     {US_CITIES.map(city => (
                       <SelectItem key={city.city} value={city.city}>
                         {city.city}, {city.state}

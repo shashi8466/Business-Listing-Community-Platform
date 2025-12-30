@@ -23,6 +23,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useBusiness } from "@/hooks/useBusiness";
 import { Business, Review, CATEGORIES } from "@/types";
 
 // Sample data for demo
@@ -118,11 +119,56 @@ const BusinessDetailPage = () => {
     content: "",
   });
 
-  // For demo, use sample data. In production:
-  // const { business, reviews, loading, error, addReview } = useBusiness(id);
-  const business = sampleBusiness;
-  const reviews = sampleReviews;
+  const { business, reviews, loading, error, addReview } = useBusiness(id);
+  const images = business?.images?.length ? business.images : ["/placeholder.svg"];
 
+  if (loading) {
+    return (
+      <>
+        <Helmet>
+          <title>Loading Business - d4desi</title>
+          <meta name="description" content="Loading business details on d4desi" />
+        </Helmet>
+
+        <div className="min-h-screen flex flex-col bg-background">
+          <Header />
+          <main className="flex-1 flex items-center justify-center">
+            <p className="text-muted-foreground">Loading business...</p>
+          </main>
+          <Footer />
+        </div>
+      </>
+    );
+  }
+
+  if (!business) {
+    return (
+      <>
+        <Helmet>
+          <title>Business Not Found - d4desi</title>
+          <meta name="description" content="Business listing not found on d4desi" />
+        </Helmet>
+
+        <div className="min-h-screen flex flex-col bg-background">
+          <Header />
+          <main className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-foreground mb-2">
+                Business Not Found
+              </h1>
+              <p className="text-muted-foreground mb-6">
+                {error || "This listing may have been removed."}
+              </p>
+              <Link to="/search">
+                <Button>Back to Search</Button>
+              </Link>
+            </div>
+          </main>
+          <Footer />
+        </div>
+      </>
+    );
+  }
   const getCategoryName = (catId: string) =>
     CATEGORIES.find((c) => c.id === catId)?.name || catId;
 
@@ -239,13 +285,13 @@ const BusinessDetailPage = () => {
                 <div className="mb-8">
                   <div className="rounded-xl overflow-hidden mb-3">
                     <img
-                      src={business.images[selectedImage]}
-                      alt={business.name}
+                      src={images[selectedImage]}
+                      alt={`${business.name} photo ${selectedImage + 1}`}
                       className="w-full h-80 md:h-96 object-cover"
                     />
                   </div>
                   <div className="flex gap-2 overflow-x-auto pb-2">
-                    {business.images.map((img, idx) => (
+                    {images.map((img, idx) => (
                       <button
                         key={idx}
                         onClick={() => setSelectedImage(idx)}
@@ -257,7 +303,7 @@ const BusinessDetailPage = () => {
                       >
                         <img
                           src={img}
-                          alt={`${business.name} ${idx + 1}`}
+                          alt={`${business.name} thumbnail ${idx + 1}`}
                           className="w-20 h-20 object-cover"
                         />
                       </button>

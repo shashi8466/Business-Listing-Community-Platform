@@ -22,47 +22,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { Business, Review } from "@/types";
-
-// Sample saved businesses for demo
-const sampleSavedBusinesses: Business[] = [
-  {
-    id: "1",
-    ownerId: "owner1",
-    name: "Spice Symphony",
-    slug: "spice-symphony",
-    description: "Authentic North Indian cuisine with a modern twist.",
-    category: "restaurants",
-    address: { street: "123 Main St", city: "New York", state: "NY", zipCode: "10001" },
-    phone: "(212) 555-0123",
-    email: "info@spicesymphony.com",
-    images: ["https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&h=300&fit=crop"],
-    rating: 4.8,
-    reviewCount: 245,
-    featured: true,
-    verified: true,
-    services: ["Dine-in", "Takeout", "Catering"],
-    hours: { monday: { open: "11:00", close: "22:00" } },
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-];
-
-const sampleUserReviews: (Review & { businessName: string })[] = [
-  {
-    id: "r1",
-    businessId: "1",
-    businessName: "Spice Symphony",
-    userId: "user1",
-    userName: "You",
-    rating: 5,
-    title: "Amazing food and service!",
-    content: "The butter chicken was divine. Highly recommend!",
-    helpful: 12,
-    createdAt: new Date("2024-12-20"),
-  }
-];
-
+import { useFavorites } from "@/hooks/useFavorites";
+import { useUserReviews } from "@/hooks/useUserReviews";
 const DashboardPage = () => {
   const { user, userProfile, signOut, loading } = useAuth();
   const { toast } = useToast();

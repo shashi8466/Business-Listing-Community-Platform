@@ -4,44 +4,14 @@ import { ArrowRight, Star, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { CATEGORIES, US_CITIES, Business } from "@/types";
-
-// Sample businesses
-const sampleBusinesses: Business[] = [
-  {
-    id: "1", ownerId: "o1", name: "Spice Symphony", slug: "spice-symphony",
-    description: "Authentic North Indian cuisine", category: "restaurants",
-    address: { street: "123 Main St", city: "New York", state: "NY", zipCode: "10001" },
-    phone: "(212) 555-0123", email: "info@spice.com",
-    images: ["https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&h=300&fit=crop"],
-    rating: 4.8, reviewCount: 245, featured: true, verified: true,
-    services: ["Dine-in"], hours: {}, createdAt: new Date(), updatedAt: new Date()
-  },
-  {
-    id: "2", ownerId: "o2", name: "Chennai Kitchen", slug: "chennai-kitchen",
-    description: "South Indian vegetarian cuisine", category: "restaurants",
-    address: { street: "456 Oak Ave", city: "Chicago", state: "IL", zipCode: "60601" },
-    phone: "(312) 555-0456", email: "info@chennai.com",
-    images: ["https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&h=300&fit=crop"],
-    rating: 4.6, reviewCount: 312, featured: false, verified: true,
-    services: ["Dine-in", "Takeout"], hours: {}, createdAt: new Date(), updatedAt: new Date()
-  },
-  {
-    id: "3", ownerId: "o3", name: "Vedic Tutors Academy", slug: "vedic-tutors",
-    description: "Expert tutoring in Math, Science, SAT/ACT prep", category: "tutors",
-    address: { street: "789 Elm St", city: "Houston", state: "TX", zipCode: "77001" },
-    phone: "(713) 555-0789", email: "info@vedic.com",
-    images: ["https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=400&h=300&fit=crop"],
-    rating: 4.7, reviewCount: 156, featured: false, verified: true,
-    services: ["Math", "Science"], hours: {}, createdAt: new Date(), updatedAt: new Date()
-  },
-];
+import { useBusinesses } from "@/hooks/useBusinesses";
+import { CATEGORIES, US_CITIES } from "@/types";
 
 const CategoryPage = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
   
   const category = CATEGORIES.find(c => c.id === categoryId);
-  const businesses = sampleBusinesses.filter(b => b.category === categoryId);
+  const { businesses, loading } = useBusinesses({ category: categoryId, limitCount: 9 });
 
   if (!category) {
     return (
@@ -113,7 +83,20 @@ const CategoryPage = () => {
                 </Link>
               </div>
 
-              {businesses.length === 0 ? (
+              {loading ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-card border border-border rounded-xl overflow-hidden animate-pulse">
+                      <div className="h-48 bg-muted" />
+                      <div className="p-5 space-y-3">
+                        <div className="h-4 bg-muted rounded w-1/2" />
+                        <div className="h-6 bg-muted rounded w-3/4" />
+                        <div className="h-4 bg-muted rounded w-full" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : businesses.length === 0 ? (
                 <div className="text-center py-12 bg-muted/50 rounded-xl">
                   <p className="text-muted-foreground mb-4">No businesses in this category yet</p>
                   <Link to="/list-business">
@@ -129,7 +112,7 @@ const CategoryPage = () => {
                       className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all"
                     >
                       <img
-                        src={business.images[0]}
+                        src={business.images[0] || "/placeholder.svg"}
                         alt={business.name}
                         className="w-full h-48 object-cover"
                       />

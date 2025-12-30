@@ -36,7 +36,12 @@ import CommunitiesInterestsPage from "./pages/CommunitiesInterestsPage";
 import CityCommunityPage from "./pages/CityCommunityPage";
 import InterestCommunityPage from "./pages/InterestCommunityPage";
 import PricingPage from "./pages/PricingPage";
+import CheckoutPage from "./pages/CheckoutPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AdminListingsPage from "./pages/AdminListingsPage";
+import BusinessAnalyticsPage from "./pages/BusinessAnalyticsPage";
+import BusinessBillingPage from "./pages/BusinessBillingPage";
+import BusinessLeadsPage from "./pages/BusinessLeadsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,7 +77,12 @@ const App = () => (
                 <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                <Route path="/admin/listings" element={<AdminListingsPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/business/analytics" element={<BusinessAnalyticsPage />} />
+                <Route path="/business/billing" element={<BusinessBillingPage />} />
+                <Route path="/business/leads" element={<BusinessLeadsPage />} />
                 <Route path="/business/:id/edit" element={<EditBusinessPage />} />
                 <Route path="/communities" element={<CommunitiesPage />} />
                 <Route path="/communities/create" element={<CreateCommunityPage />} />

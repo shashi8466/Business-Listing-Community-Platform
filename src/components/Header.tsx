@@ -22,6 +22,10 @@ import {
   TrendingUp,
   Award,
   Crown,
+  Users,
+  CreditCard,
+  BarChart3,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -41,9 +45,9 @@ const Header = () => {
   const navLinks = [
     { name: "Services", href: "/search" },
     { name: "Featured", href: "/featured" },
-    { name: "Trending", href: "/trending" },
+    { name: "Communities", href: "/communities" },
+    { name: "Pricing", href: "/pricing" },
     { name: "Cities", href: "/cities" },
-    { name: "About", href: "/about" },
   ];
 
   const initials =
@@ -105,7 +109,7 @@ const Header = () => {
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem asChild>
                     <Link to="/profile" className="cursor-pointer gap-2">
                       <User className="h-4 w-4" />
@@ -120,8 +124,34 @@ const Header = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/dashboard" className="cursor-pointer gap-2">
-                      <Settings className="h-4 w-4" />
-                      Dashboard
+                      <Building2 className="h-4 w-4" />
+                      My Businesses
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/business/leads" className="cursor-pointer gap-2">
+                      <Users className="h-4 w-4" />
+                      Leads
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/business/analytics" className="cursor-pointer gap-2">
+                      <BarChart3 className="h-4 w-4" />
+                      Analytics
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/business/billing" className="cursor-pointer gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      Billing & Invoices
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin/dashboard" className="cursor-pointer gap-2">
+                      <ShieldCheck className="h-4 w-4" />
+                      Admin Dashboard
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

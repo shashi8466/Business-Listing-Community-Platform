@@ -35,6 +35,8 @@ import CommunitiesCitiesPage from "./pages/CommunitiesCitiesPage";
 import CommunitiesInterestsPage from "./pages/CommunitiesInterestsPage";
 import CityCommunityPage from "./pages/CityCommunityPage";
 import InterestCommunityPage from "./pages/InterestCommunityPage";
+import PricingPage from "./pages/PricingPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +71,8 @@ const App = () => (
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/business/:id/edit" element={<EditBusinessPage />} />
                 <Route path="/communities" element={<CommunitiesPage />} />
                 <Route path="/communities/create" element={<CreateCommunityPage />} />

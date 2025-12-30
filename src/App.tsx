@@ -30,6 +30,11 @@ import AdminPage from "./pages/AdminPage";
 import EditBusinessPage from "./pages/EditBusinessPage";
 import CommunitiesPage from "./pages/CommunitiesPage";
 import CommunityPage from "./pages/CommunityPage";
+import CreateCommunityPage from "./pages/CreateCommunityPage";
+import CommunitiesCitiesPage from "./pages/CommunitiesCitiesPage";
+import CommunitiesInterestsPage from "./pages/CommunitiesInterestsPage";
+import CityCommunityPage from "./pages/CityCommunityPage";
+import InterestCommunityPage from "./pages/InterestCommunityPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,6 +71,11 @@ const App = () => (
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/business/:id/edit" element={<EditBusinessPage />} />
                 <Route path="/communities" element={<CommunitiesPage />} />
+                <Route path="/communities/create" element={<CreateCommunityPage />} />
+                <Route path="/communities/cities" element={<CommunitiesCitiesPage />} />
+                <Route path="/communities/interests" element={<CommunitiesInterestsPage />} />
+                <Route path="/communities/city/:citySlug" element={<CityCommunityPage />} />
+                <Route path="/communities/interests/:interestId" element={<InterestCommunityPage />} />
                 <Route path="/community/:slug" element={<CommunityPage />} />
                 {/* City landing pages - must be after other specific routes */}
                 <Route path="/:city" element={<CityLandingPage />} />

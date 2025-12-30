@@ -22,6 +22,7 @@ const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "");
   const [selectedCity, setSelectedCity] = useState(searchParams.get("city") || "");
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "rating");
   const [showFilters, setShowFilters] = useState(false);
 
   const { businesses, loading } = useBusinesses({
@@ -30,12 +31,41 @@ const SearchPage = () => {
     searchQuery: searchQuery || undefined
   });
 
+  // Sort businesses based on selected sort option
+  const sortedBusinesses = [...businesses].sort((a, b) => {
+    switch (sortBy) {
+      case "reviews":
+        return b.reviewCount - a.reviewCount;
+      case "newest":
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      case "rating":
+      default:
+        return b.rating - a.rating;
+    }
+  });
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    updateUrlParams();
+  };
+
+  const updateUrlParams = () => {
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
     if (selectedCategory) params.set("category", selectedCategory);
     if (selectedCity) params.set("city", selectedCity);
+    if (sortBy && sortBy !== "rating") params.set("sort", sortBy);
+    setSearchParams(params);
+  };
+
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+    const params = new URLSearchParams(searchParams);
+    if (value === "rating") {
+      params.delete("sort");
+    } else {
+      params.set("sort", value);
+    }
     setSearchParams(params);
   };
 
@@ -180,9 +210,9 @@ const SearchPage = () => {
               <div className="flex-1">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold text-foreground">
-                    {loading ? "Loading..." : `${businesses.length} Results`}
+                    {loading ? "Loading..." : `${sortedBusinesses.length} Results`}
                   </h2>
-                  <Select defaultValue="rating">
+                  <Select value={sortBy} onValueChange={handleSortChange}>
                     <SelectTrigger className="w-40">
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
@@ -209,7 +239,7 @@ const SearchPage = () => {
                       </div>
                     ))}
                   </div>
-                ) : businesses.length === 0 ? (
+                ) : sortedBusinesses.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg">No businesses found matching your criteria.</p>
                     <Button variant="outline" onClick={clearFilters} className="mt-4">
@@ -218,7 +248,7 @@ const SearchPage = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {businesses.map(business => (
+                    {sortedBusinesses.map(business => (
                       <Link
                         key={business.id}
                         to={`/business/${business.id}`}

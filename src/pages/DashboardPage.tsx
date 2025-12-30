@@ -539,9 +539,14 @@ const DashboardPage = () => {
                               </div>
                             </div>
                             <div className="flex flex-col gap-2">
-                              <Link to={`/business/${business.id}`}>
+                              <Link to={`/business/${business.id}/edit`}>
                                 <Button variant="outline" size="sm" className="w-full">
                                   <Edit className="h-4 w-4 mr-1" />
+                                  Edit
+                                </Button>
+                              </Link>
+                              <Link to={`/business/${business.id}`}>
+                                <Button variant="ghost" size="sm" className="w-full">
                                   View
                                 </Button>
                               </Link>

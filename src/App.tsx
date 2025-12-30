@@ -21,6 +21,7 @@ import TermsPage from "./pages/TermsPage";
 import ProfilePage from "./pages/ProfilePage";
 import FavoritesPage from "./pages/FavoritesPage";
 import AdminPage from "./pages/AdminPage";
+import EditBusinessPage from "./pages/EditBusinessPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/business/:id/edit" element={<EditBusinessPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

@@ -14,6 +14,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ListBusinessPage from "./pages/ListBusinessPage";
 import CategoryPage from "./pages/CategoryPage";
 import CityPage from "./pages/CityPage";
+import CitiesPage from "./pages/CitiesPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
@@ -43,6 +44,7 @@ const App = () => (
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/list-business" element={<ListBusinessPage />} />
                 <Route path="/category/:categoryId" element={<CategoryPage />} />
+                <Route path="/cities" element={<CitiesPage />} />
                 <Route path="/city/:cityName" element={<CityPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />

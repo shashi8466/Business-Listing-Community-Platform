@@ -10,6 +10,7 @@ export interface User {
   phone?: string;
   city?: string;
   state?: string;
+  zip?: string;
   zipCode?: string;
   createdAt: Date;
   role: UserRole;

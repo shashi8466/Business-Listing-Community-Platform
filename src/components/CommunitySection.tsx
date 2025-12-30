@@ -1,5 +1,6 @@
 import { Users, MessageSquare, Calendar, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const communities = [
   {
@@ -77,9 +78,12 @@ const CommunitySection = () => {
             size="lg"
             variant="secondary"
             className="bg-primary-foreground text-foreground hover:bg-primary-foreground/90 gap-2"
+            asChild
           >
-            Explore All Communities
-            <ArrowRight className="h-4 w-4" />
+            <Link to="/communities">
+              Explore All Communities
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </Button>
         </div>
 

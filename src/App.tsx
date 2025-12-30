@@ -28,6 +28,8 @@ import ProfilePage from "./pages/ProfilePage";
 import FavoritesPage from "./pages/FavoritesPage";
 import AdminPage from "./pages/AdminPage";
 import EditBusinessPage from "./pages/EditBusinessPage";
+import CommunitiesPage from "./pages/CommunitiesPage";
+import CommunityPage from "./pages/CommunityPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +65,8 @@ const App = () => (
                 <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/business/:id/edit" element={<EditBusinessPage />} />
+                <Route path="/communities" element={<CommunitiesPage />} />
+                <Route path="/community/:slug" element={<CommunityPage />} />
                 {/* City landing pages - must be after other specific routes */}
                 <Route path="/:city" element={<CityLandingPage />} />
                 <Route path="*" element={<NotFound />} />

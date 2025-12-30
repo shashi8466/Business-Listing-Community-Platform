@@ -1,9 +1,21 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Search, User, Building2 } from "lucide-react";
+import { Menu, X, Search, User, Building2, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({ title: "Signed out successfully" });
+    navigate("/");
+  };
 
   const navLinks = [
     { name: "Services", href: "#services" },
@@ -39,14 +51,30 @@ const Header = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <Search className="h-4 w-4" />
-              Search
-            </Button>
-            <Button variant="outline" size="sm" className="gap-2">
-              <User className="h-4 w-4" />
-              Login
-            </Button>
+            <Link to="/search">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <Search className="h-4 w-4" />
+                Search
+              </Button>
+            </Link>
+            {user ? (
+              <>
+                <span className="text-sm text-muted-foreground">
+                  {user.displayName || user.email}
+                </span>
+                <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2">
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <User className="h-4 w-4" />
+                  Login
+                </Button>
+              </Link>
+            )}
             <Button size="sm" className="gap-2">
               <Building2 className="h-4 w-4" />
               List Business

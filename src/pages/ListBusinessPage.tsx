@@ -194,7 +194,7 @@ const ListBusinessPage = () => {
                         value={formData.category}
                         onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger id="category">
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -223,6 +223,8 @@ const ListBusinessPage = () => {
                       <Label>Services Offered</Label>
                       <div className="flex gap-2">
                         <Input
+                          id="new-service"
+                          name="service"
                           value={newService}
                           onChange={(e) => setNewService(e.target.value)}
                           placeholder="Add a service (e.g., Dine-in, Delivery)"
@@ -283,7 +285,7 @@ const ListBusinessPage = () => {
                       <div className="space-y-2">
                         <Label htmlFor="city">City *</Label>
                         <Select value={formData.city} onValueChange={handleCityChange}>
-                          <SelectTrigger>
+                          <SelectTrigger id="city">
                             <SelectValue placeholder="Select city" />
                           </SelectTrigger>
                           <SelectContent>

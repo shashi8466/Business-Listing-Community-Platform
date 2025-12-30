@@ -43,6 +43,8 @@ const HeroSection = () => {
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
+                id="hero-search"
+                name="search"
                 type="text"
                 placeholder="What are you looking for?"
                 className="pl-12 h-12 md:h-14 text-base border-border bg-background"
@@ -51,6 +53,8 @@ const HeroSection = () => {
             <div className="flex-1 relative">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
+                id="hero-location"
+                name="location"
                 type="text"
                 placeholder="City, State or ZIP"
                 className="pl-12 h-12 md:h-14 text-base border-border bg-background"

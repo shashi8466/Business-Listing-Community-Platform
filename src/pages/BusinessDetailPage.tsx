@@ -389,6 +389,8 @@ const BusinessDetailPage = () => {
                           </div>
                         </div>
                         <Input
+                          id="review-title"
+                          name="title"
                           placeholder="Review title"
                           value={reviewForm.title}
                           onChange={(e) =>
@@ -400,6 +402,8 @@ const BusinessDetailPage = () => {
                           required
                         />
                         <Textarea
+                          id="review-content"
+                          name="content"
                           placeholder="Share your experience..."
                           value={reviewForm.content}
                           onChange={(e) =>
@@ -541,6 +545,8 @@ const BusinessDetailPage = () => {
                     </h3>
                     <form onSubmit={handleInquirySubmit} className="space-y-4">
                       <Input
+                        id="inquiry-name"
+                        name="name"
                         placeholder="Your Name"
                         value={inquiryForm.name}
                         onChange={(e) =>
@@ -552,6 +558,8 @@ const BusinessDetailPage = () => {
                         required
                       />
                       <Input
+                        id="inquiry-email"
+                        name="email"
                         type="email"
                         placeholder="Your Email"
                         value={inquiryForm.email}
@@ -564,6 +572,8 @@ const BusinessDetailPage = () => {
                         required
                       />
                       <Input
+                        id="inquiry-phone"
+                        name="phone"
                         type="tel"
                         placeholder="Phone (optional)"
                         value={inquiryForm.phone}
@@ -575,6 +585,8 @@ const BusinessDetailPage = () => {
                         }
                       />
                       <Textarea
+                        id="inquiry-message"
+                        name="message"
                         placeholder="Your message..."
                         value={inquiryForm.message}
                         onChange={(e) =>

@@ -52,27 +52,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     let unsubscribe: (() => void) | undefined;
 
     const setupAuth = async () => {
-      const auth = await getFirebaseAuth();
-      unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-        setUser(firebaseUser);
-        
-        if (firebaseUser) {
-          // Fetch user profile from Firestore
-          const db = await getFirebaseDb();
-          const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-          if (userDoc.exists()) {
-            const data = userDoc.data();
-            setUserProfile({
-              ...data,
-              createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt)
-            } as User);
+      try {
+        const auth = await getFirebaseAuth();
+        unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+          setUser(firebaseUser);
+          
+          if (firebaseUser) {
+            try {
+              // Fetch user profile from Firestore
+              const db = await getFirebaseDb();
+              const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+              if (userDoc.exists()) {
+                const data = userDoc.data();
+                setUserProfile({
+                  ...data,
+                  createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt)
+                } as User);
+              }
+            } catch (error) {
+              console.error("Error fetching user profile:", error);
+            }
+          } else {
+            setUserProfile(null);
           }
-        } else {
-          setUserProfile(null);
-        }
-        
+          
+          setLoading(false);
+        });
+      } catch (error) {
+        console.error("Error setting up auth:", error);
         setLoading(false);
-      });
+      }
     };
 
     setupAuth();
@@ -175,6 +184,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return userProfile?.favorites?.includes(businessId) || false;
   };
 
+  // Don't block render while loading - just show content with null user
   return (
     <AuthContext.Provider value={{ 
       user, 

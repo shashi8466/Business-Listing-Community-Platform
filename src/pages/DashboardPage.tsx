@@ -5,7 +5,6 @@ import {
   User, 
   Heart, 
   Star, 
-  Settings, 
   LogOut, 
   MapPin, 
   Building2,
@@ -16,7 +15,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -24,9 +22,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserReviews } from "@/hooks/useUserReviews";
+
 const DashboardPage = () => {
-  const { user, userProfile, signOut, loading } = useAuth();
+  const { user, userProfile, signOut, loading, updateUserProfile, toggleFavorite } = useAuth();
   const { toast } = useToast();
+  const { favorites, loading: favoritesLoading } = useFavorites();
+  const { reviews, loading: reviewsLoading, deleteReview } = useUserReviews(user?.uid);
+  
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -57,26 +59,55 @@ const DashboardPage = () => {
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In production, update Firestore
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been updated successfully.",
-    });
-    setIsEditing(false);
+    try {
+      await updateUserProfile({
+        displayName: profileForm.displayName,
+        phone: profileForm.phone,
+      });
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully.",
+      });
+      setIsEditing(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleRemoveSaved = (businessId: string) => {
-    toast({
-      title: "Removed",
-      description: "Business removed from your saved list.",
-    });
+  const handleRemoveSaved = async (businessId: string) => {
+    try {
+      await toggleFavorite(businessId);
+      toast({
+        title: "Removed",
+        description: "Business removed from your saved list.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to remove business.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDeleteReview = (reviewId: string) => {
-    toast({
-      title: "Review Deleted",
-      description: "Your review has been deleted.",
-    });
+  const handleDeleteReview = async (reviewId: string, businessId: string) => {
+    try {
+      await deleteReview(reviewId, businessId);
+      toast({
+        title: "Review Deleted",
+        description: "Your review has been deleted.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete review.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -104,7 +135,7 @@ const DashboardPage = () => {
                     </h2>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                     <Badge variant="secondary" className="mt-2">
-                      {userProfile?.role === 'business_owner' ? 'Business Owner' : 'Member'}
+                      {userProfile?.role === 'business' ? 'Business Owner' : 'Member'}
                     </Badge>
                   </div>
 
@@ -238,7 +269,19 @@ const DashboardPage = () => {
                 {activeTab === "saved" && (
                   <div>
                     <h1 className="text-2xl font-bold text-foreground mb-6">Saved Businesses</h1>
-                    {sampleSavedBusinesses.length === 0 ? (
+                    {favoritesLoading ? (
+                      <div className="space-y-4">
+                        {[1, 2].map(i => (
+                          <div key={i} className="bg-card border border-border rounded-xl p-4 animate-pulse flex gap-4">
+                            <div className="w-24 h-24 bg-muted rounded-lg" />
+                            <div className="flex-1 space-y-2">
+                              <div className="h-5 bg-muted rounded w-1/3" />
+                              <div className="h-4 bg-muted rounded w-1/2" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : favorites.length === 0 ? (
                       <div className="bg-card border border-border rounded-xl p-12 text-center">
                         <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                         <p className="text-muted-foreground mb-4">No saved businesses yet</p>
@@ -248,10 +291,10 @@ const DashboardPage = () => {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {sampleSavedBusinesses.map(business => (
+                        {favorites.map(business => (
                           <div key={business.id} className="bg-card border border-border rounded-xl p-4 flex gap-4">
                             <img
-                              src={business.images[0]}
+                              src={business.images[0] || "/placeholder.svg"}
                               alt={business.name}
                               className="w-24 h-24 rounded-lg object-cover flex-shrink-0"
                             />
@@ -289,7 +332,16 @@ const DashboardPage = () => {
                 {activeTab === "reviews" && (
                   <div>
                     <h1 className="text-2xl font-bold text-foreground mb-6">My Reviews</h1>
-                    {sampleUserReviews.length === 0 ? (
+                    {reviewsLoading ? (
+                      <div className="space-y-4">
+                        {[1, 2].map(i => (
+                          <div key={i} className="bg-card border border-border rounded-xl p-5 animate-pulse space-y-3">
+                            <div className="h-5 bg-muted rounded w-1/3" />
+                            <div className="h-4 bg-muted rounded w-full" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : reviews.length === 0 ? (
                       <div className="bg-card border border-border rounded-xl p-12 text-center">
                         <Star className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                         <p className="text-muted-foreground mb-4">You haven't written any reviews yet</p>
@@ -299,7 +351,7 @@ const DashboardPage = () => {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {sampleUserReviews.map(review => (
+                        {reviews.map(review => (
                           <div key={review.id} className="bg-card border border-border rounded-xl p-5">
                             <div className="flex items-start justify-between mb-3">
                               <div>
@@ -328,7 +380,7 @@ const DashboardPage = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleDeleteReview(review.id)}
+                                onClick={() => handleDeleteReview(review.id, review.businessId)}
                                 className="text-destructive hover:text-destructive"
                               >
                                 <Trash2 className="h-4 w-4" />

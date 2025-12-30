@@ -47,6 +47,8 @@ const sampleBusiness: Business = {
   reviewCount: 245,
   featured: true,
   verified: true,
+  approved: true,
+  active: true,
   services: ["Dine-in", "Takeout", "Catering", "Delivery", "Private Events"],
   hours: {
     monday: { open: "11:00 AM", close: "10:00 PM" },

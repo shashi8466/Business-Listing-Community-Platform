@@ -1,34 +1,53 @@
-import { initializeApp } from "firebase/app";
-import { getAnalytics, isSupported } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { useEffect, useState } from "react";
+import { firebaseConfig } from "./firebase-config";
 
-// Firebase configuration (publishable keys - safe for client-side)
-const firebaseConfig = {
-  apiKey: "AIzaSyB0i01XuUbdEeSmg45PumZJwuyU1Iyrf7Q",
-  authDomain: "d4desi-69c02.firebaseapp.com",
-  projectId: "d4desi-69c02",
-  storageBucket: "d4desi-69c02.firebasestorage.app",
-  messagingSenderId: "40942035138",
-  appId: "1:40942035138:web:9f1cbaa8f6b741c3089b5b",
-  measurementId: "G-8DNXKNWFN0"
-};
+// Lazy initialization to avoid build issues with Firebase types
+let firebaseApp: ReturnType<typeof import("firebase/app").initializeApp> | null = null;
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-
-// Initialize Analytics (only in browser environment)
-export const initAnalytics = async () => {
-  if (await isSupported()) {
-    return getAnalytics(app);
+export const getFirebaseApp = async () => {
+  if (!firebaseApp) {
+    const { initializeApp } = await import("firebase/app");
+    firebaseApp = initializeApp(firebaseConfig);
   }
-  return null;
+  return firebaseApp;
 };
 
-export default app;
+export const getFirebaseAuth = async () => {
+  const app = await getFirebaseApp();
+  const { getAuth } = await import("firebase/auth");
+  return getAuth(app);
+};
+
+export const getFirebaseDb = async () => {
+  const app = await getFirebaseApp();
+  const { getFirestore } = await import("firebase/firestore");
+  return getFirestore(app);
+};
+
+export const getFirebaseStorage = async () => {
+  const app = await getFirebaseApp();
+  const { getStorage } = await import("firebase/storage");
+  return getStorage(app);
+};
+
+// Hook for using Firebase Auth
+export const useFirebaseAuth = () => {
+  const [auth, setAuth] = useState<Awaited<ReturnType<typeof getFirebaseAuth>> | null>(null);
+  
+  useEffect(() => {
+    getFirebaseAuth().then(setAuth);
+  }, []);
+  
+  return auth;
+};
+
+// Hook for using Firestore
+export const useFirestore = () => {
+  const [db, setDb] = useState<Awaited<ReturnType<typeof getFirebaseDb>> | null>(null);
+  
+  useEffect(() => {
+    getFirebaseDb().then(setDb);
+  }, []);
+  
+  return db;
+};

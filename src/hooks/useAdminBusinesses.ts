@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { collection, query, where, orderBy, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { Business } from "@/types";
 
@@ -14,11 +14,10 @@ export const useAdminBusinesses = () => {
       setLoading(true);
       const db = await getFirebaseDb();
 
-      // Fetch pending (not approved) businesses
+      // Fetch pending (not approved) businesses - no orderBy to avoid composite index
       const pendingQuery = query(
         collection(db, "businesses"),
-        where("approved", "==", false),
-        orderBy("createdAt", "desc")
+        where("approved", "==", false)
       );
       const pendingSnapshot = await getDocs(pendingQuery);
       const pendingResults = pendingSnapshot.docs.map((doc) => ({
@@ -27,19 +26,19 @@ export const useAdminBusinesses = () => {
         createdAt: doc.data().createdAt?.toDate?.() || new Date(),
         updatedAt: doc.data().updatedAt?.toDate?.() || new Date(),
       })) as Business[];
+      // Sort client-side
+      pendingResults.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
       // Fetch all businesses for management
-      const allQuery = query(
-        collection(db, "businesses"),
-        orderBy("createdAt", "desc")
-      );
-      const allSnapshot = await getDocs(allQuery);
+      const allSnapshot = await getDocs(collection(db, "businesses"));
       const allResults = allSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate?.() || new Date(),
         updatedAt: doc.data().updatedAt?.toDate?.() || new Date(),
       })) as Business[];
+      // Sort client-side
+      allResults.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
       setPendingBusinesses(pendingResults);
       setAllBusinesses(allResults);

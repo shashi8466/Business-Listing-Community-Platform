@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { collection, query, where, orderBy, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { Business } from "@/types";
 
@@ -19,10 +19,10 @@ export const useMyBusinesses = (ownerId: string | undefined) => {
       setLoading(true);
       const db = await getFirebaseDb();
 
+      // No orderBy to avoid composite index requirement
       const q = query(
         collection(db, "businesses"),
-        where("ownerId", "==", ownerId),
-        orderBy("createdAt", "desc")
+        where("ownerId", "==", ownerId)
       );
 
       const snapshot = await getDocs(q);
@@ -32,6 +32,8 @@ export const useMyBusinesses = (ownerId: string | undefined) => {
         createdAt: doc.data().createdAt?.toDate?.() || new Date(),
         updatedAt: doc.data().updatedAt?.toDate?.() || new Date(),
       })) as Business[];
+      // Sort client-side
+      results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
       setBusinesses(results);
       setError(null);

@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { 
-  Building2, 
-  Upload, 
-  Plus, 
-  X, 
-  MapPin, 
-  Phone, 
-  Mail, 
+import {
+  Building2,
+  Upload,
+  Plus,
+  X,
+  MapPin,
+  Phone,
+  Mail,
   Globe,
   Clock,
-  CheckCircle2
+  CheckCircle2,
 } from "lucide-react";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +30,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { getFirebaseDb } from "@/lib/firebase";
 import { CATEGORIES, US_CITIES } from "@/types";
 
 const ListBusinessPage = () => {
@@ -97,7 +99,7 @@ const ListBusinessPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.agreeToTerms) {
       toast({
         title: "Terms Required",
@@ -109,16 +111,59 @@ const ListBusinessPage = () => {
 
     setIsSubmitting(true);
 
-    // Simulate API call - in production, save to Firestore
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const db = await getFirebaseDb();
 
-    toast({
-      title: "Business Submitted!",
-      description: "Your listing is under review and will be live within 24-48 hours.",
-    });
+      const slug = formData.name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
 
-    navigate("/dashboard");
-    setIsSubmitting(false);
+      const docRef = await addDoc(collection(db, "businesses"), {
+        ownerId: user.uid,
+        name: formData.name.trim(),
+        slug,
+        description: formData.description.trim(),
+        category: formData.category,
+        address: {
+          street: formData.street.trim(),
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode.trim(),
+        },
+        phone: formData.phone.trim(),
+        email: formData.email.trim(),
+        ...(formData.website?.trim() ? { website: formData.website.trim() } : {}),
+        images: [],
+        rating: 0,
+        reviewCount: 0,
+        featured: false,
+        verified: false,
+        approved: true,
+        active: true,
+        services: formData.services,
+        hours: {},
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      toast({
+        title: "Business Listed!",
+        description: "Your business is now live.",
+      });
+
+      navigate(`/business/${docRef.id}`);
+    } catch (error) {
+      console.error("Failed to submit business:", error);
+      toast({
+        title: "Submission Failed",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isStep1Valid = formData.name && formData.category && formData.description;

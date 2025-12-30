@@ -14,6 +14,212 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_hash: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_hash?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_hash?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_reviews: {
+        Row: {
+          business_id: string
+          content: string | null
+          created_at: string | null
+          helpful_count: number | null
+          id: string
+          is_featured: boolean | null
+          is_verified: boolean | null
+          rating: number
+          status: Database["public"]["Enums"]["listing_status"] | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          content?: string | null
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          rating: number
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          content?: string | null
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          rating?: number
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      businesses: {
+        Row: {
+          address: string | null
+          amenities: Json | null
+          business_hours: Json | null
+          category: string
+          city: string
+          country: string | null
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          email: string | null
+          featured_until: string | null
+          gallery_images: Json | null
+          id: string
+          is_featured: boolean | null
+          is_verified: boolean | null
+          latitude: number | null
+          logo_url: string | null
+          longitude: number | null
+          membership_tier: Database["public"]["Enums"]["membership_tier"] | null
+          name: string
+          owner_id: string
+          phone: string | null
+          rating_average: number | null
+          rating_count: number | null
+          slug: string
+          social_links: Json | null
+          state: string | null
+          status: Database["public"]["Enums"]["listing_status"] | null
+          subcategory: string | null
+          tags: string[] | null
+          updated_at: string | null
+          view_count: number | null
+          website: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          amenities?: Json | null
+          business_hours?: Json | null
+          category: string
+          city: string
+          country?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          featured_until?: string | null
+          gallery_images?: Json | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          membership_tier?:
+            | Database["public"]["Enums"]["membership_tier"]
+            | null
+          name: string
+          owner_id: string
+          phone?: string | null
+          rating_average?: number | null
+          rating_count?: number | null
+          slug: string
+          social_links?: Json | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          subcategory?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          view_count?: number | null
+          website?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          amenities?: Json | null
+          business_hours?: Json | null
+          category?: string
+          city?: string
+          country?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          featured_until?: string | null
+          gallery_images?: Json | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          membership_tier?:
+            | Database["public"]["Enums"]["membership_tier"]
+            | null
+          name?: string
+          owner_id?: string
+          phone?: string | null
+          rating_average?: number | null
+          rating_count?: number | null
+          slug?: string
+          social_links?: Json | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          subcategory?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          view_count?: number | null
+          website?: string | null
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
       comment_likes: {
         Row: {
           comment_id: string
@@ -409,6 +615,112 @@ export type Database = {
           },
         ]
       }
+      lead_credits: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          credits_reset_at: string | null
+          id: string
+          monthly_credits: number | null
+          total_credits: number | null
+          updated_at: string | null
+          used_credits: number | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          credits_reset_at?: string | null
+          id?: string
+          monthly_credits?: number | null
+          total_credits?: number | null
+          updated_at?: string | null
+          used_credits?: number | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          credits_reset_at?: string | null
+          id?: string
+          monthly_credits?: number | null
+          total_credits?: number | null
+          updated_at?: string | null
+          used_credits?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_credits_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          business_id: string
+          contacted_at: string | null
+          converted_at: string | null
+          created_at: string | null
+          credit_cost: number | null
+          email: string
+          id: string
+          is_premium: boolean | null
+          message: string | null
+          metadata: Json | null
+          name: string
+          phone: string | null
+          source: string | null
+          status: Database["public"]["Enums"]["lead_status"] | null
+          updated_at: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          business_id: string
+          contacted_at?: string | null
+          converted_at?: string | null
+          created_at?: string | null
+          credit_cost?: number | null
+          email: string
+          id?: string
+          is_premium?: boolean | null
+          message?: string | null
+          metadata?: Json | null
+          name: string
+          phone?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"] | null
+          updated_at?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          business_id?: string
+          contacted_at?: string | null
+          converted_at?: string | null
+          created_at?: string | null
+          credit_cost?: number | null
+          email?: string
+          id?: string
+          is_premium?: boolean | null
+          message?: string | null
+          metadata?: Json | null
+          name?: string
+          phone?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"] | null
+          updated_at?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_follows: {
         Row: {
           created_at: string | null
@@ -430,6 +742,249 @@ export type Database = {
         }
         Relationships: []
       }
+      membership_plans: {
+        Row: {
+          analytics_access: boolean | null
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          is_featured_eligible: boolean | null
+          max_leads_per_month: number | null
+          name: string
+          price_monthly: number | null
+          price_yearly: number | null
+          priority_placement: boolean | null
+          slug: string
+          tier: Database["public"]["Enums"]["membership_tier"]
+          updated_at: string | null
+        }
+        Insert: {
+          analytics_access?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_featured_eligible?: boolean | null
+          max_leads_per_month?: number | null
+          name: string
+          price_monthly?: number | null
+          price_yearly?: number | null
+          priority_placement?: boolean | null
+          slug: string
+          tier?: Database["public"]["Enums"]["membership_tier"]
+          updated_at?: string | null
+        }
+        Update: {
+          analytics_access?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_featured_eligible?: boolean | null
+          max_leads_per_month?: number | null
+          name?: string
+          price_monthly?: number | null
+          price_yearly?: number | null
+          priority_placement?: boolean | null
+          slug?: string
+          tier?: Database["public"]["Enums"]["membership_tier"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      moderation_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          moderator_id: string
+          new_status: string | null
+          previous_status: string | null
+          reason: string | null
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          moderator_id: string
+          new_status?: string | null
+          previous_status?: string | null
+          reason?: string | null
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          moderator_id?: string
+          new_status?: string | null
+          previous_status?: string | null
+          reason?: string | null
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          business_id: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          payment_type: string
+          paypal_capture_id: string | null
+          paypal_order_id: string | null
+          status: Database["public"]["Enums"]["payment_status"] | null
+          subscription_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          business_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_type: string
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          status?: Database["public"]["Enums"]["payment_status"] | null
+          subscription_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          business_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_type?: string
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          status?: Database["public"]["Enums"]["payment_status"] | null
+          subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          billing_cycle: string | null
+          business_id: string
+          cancel_at_period_end: boolean | null
+          canceled_at: string | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          paypal_payer_id: string | null
+          paypal_subscription_id: string | null
+          plan_id: string
+          status: Database["public"]["Enums"]["subscription_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          billing_cycle?: string | null
+          business_id: string
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          paypal_payer_id?: string | null
+          paypal_subscription_id?: string | null
+          plan_id: string
+          status?: Database["public"]["Enums"]["subscription_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          billing_cycle?: string | null
+          business_id?: string
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          paypal_payer_id?: string | null
+          paypal_subscription_id?: string | null
+          plan_id?: string
+          status?: Database["public"]["Enums"]["subscription_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "membership_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -443,6 +998,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_community_member: {
         Args: { _community_id: string; _user_id: string }
         Returns: boolean
@@ -453,10 +1016,21 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "user"
       community_role: "admin" | "moderator" | "member"
       community_type: "city" | "interest"
+      lead_status: "new" | "viewed" | "contacted" | "converted" | "expired"
+      listing_status: "pending" | "approved" | "rejected" | "suspended"
+      membership_tier: "free" | "premium" | "featured"
+      payment_status: "pending" | "completed" | "failed" | "refunded"
       report_status: "pending" | "reviewed" | "resolved" | "dismissed"
       rsvp_status: "going" | "interested" | "not_going"
+      subscription_status:
+        | "active"
+        | "canceled"
+        | "expired"
+        | "pending"
+        | "trial"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -584,10 +1158,22 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "user"],
       community_role: ["admin", "moderator", "member"],
       community_type: ["city", "interest"],
+      lead_status: ["new", "viewed", "contacted", "converted", "expired"],
+      listing_status: ["pending", "approved", "rejected", "suspended"],
+      membership_tier: ["free", "premium", "featured"],
+      payment_status: ["pending", "completed", "failed", "refunded"],
       report_status: ["pending", "reviewed", "resolved", "dismissed"],
       rsvp_status: ["going", "interested", "not_going"],
+      subscription_status: [
+        "active",
+        "canceled",
+        "expired",
+        "pending",
+        "trial",
+      ],
     },
   },
 } as const

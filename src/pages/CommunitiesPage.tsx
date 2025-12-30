@@ -46,18 +46,16 @@ const CommunitiesPage = () => {
                 discuss topics, attend events, and grow together.
               </p>
               {user ? (
-                <Link to="/communities/create">
-                  <Button size="lg" variant="secondary" className="gap-2">
+                <Button size="lg" variant="secondary" className="gap-2" asChild>
+                  <Link to="/communities/create">
                     <Plus className="h-5 w-5" />
                     Create Community
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               ) : (
-                <Link to="/auth">
-                  <Button size="lg" variant="secondary">
-                    Join the Community
-                  </Button>
-                </Link>
+                <Button size="lg" variant="secondary" asChild>
+                  <Link to="/auth">Join the Community</Link>
+                </Button>
               )}
             </div>
           </section>
@@ -89,9 +87,9 @@ const CommunitiesPage = () => {
                 <div className="text-center py-12 bg-muted/50 rounded-xl">
                   <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground mb-4">No featured communities yet</p>
-                  <Link to="/communities/create">
-                    <Button>Create the First Community</Button>
-                  </Link>
+                  <Button asChild>
+                    <Link to="/communities/create">Create the First Community</Link>
+                  </Button>
                 </div>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -138,11 +136,11 @@ const CommunitiesPage = () => {
                     Communities by City
                   </h2>
                 </div>
-                <Link to="/communities/cities">
-                  <Button variant="outline" className="gap-2">
+                <Button variant="outline" className="gap-2" asChild>
+                  <Link to="/communities/cities">
                     View All Cities <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
 
               {/* City Quick Links */}
@@ -188,11 +186,11 @@ const CommunitiesPage = () => {
                     Communities by Interest
                   </h2>
                 </div>
-                <Link to="/communities/interests">
-                  <Button variant="outline" className="gap-2">
+                <Button variant="outline" className="gap-2" asChild>
+                  <Link to="/communities/interests">
                     View All Interests <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
 
               {/* Interest Category Cards */}
@@ -241,12 +239,12 @@ const CommunitiesPage = () => {
                 Create a new community and bring people together around shared
                 interests, locations, or causes.
               </p>
-              <Link to={user ? "/communities/create" : "/auth"}>
-                <Button size="lg" variant="secondary" className="gap-2">
+              <Button size="lg" variant="secondary" className="gap-2" asChild>
+                <Link to={user ? "/communities/create" : "/auth"}>
                   <Plus className="h-5 w-5" />
                   {user ? "Create Community" : "Sign Up to Create"}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </section>
         </main>

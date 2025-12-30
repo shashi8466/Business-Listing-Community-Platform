@@ -120,11 +120,11 @@ const CreateCommunityPage = () => {
           <div className="container mx-auto px-4 max-w-2xl">
             <Button
               variant="ghost"
-              onClick={() => navigate("/communities")}
+              onClick={() => navigate(-1)}
               className="mb-6 gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Communities
+              Back
             </Button>
 
             <div className="bg-card border border-border rounded-xl p-6 md:p-8">

@@ -15,6 +15,10 @@ import ListBusinessPage from "./pages/ListBusinessPage";
 import CategoryPage from "./pages/CategoryPage";
 import CityPage from "./pages/CityPage";
 import CitiesPage from "./pages/CitiesPage";
+import CitySearchPage from "./pages/CitySearchPage";
+import FeaturedPage from "./pages/FeaturedPage";
+import TrendingPage from "./pages/TrendingPage";
+import SponsoredPage from "./pages/SponsoredPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
@@ -37,7 +41,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <Routes>
-              <Route path="/" element={<Index />} />
+                <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/business/:id" element={<BusinessDetailPage />} />
@@ -46,6 +50,10 @@ const App = () => (
                 <Route path="/category/:categoryId" element={<CategoryPage />} />
                 <Route path="/cities" element={<CitiesPage />} />
                 <Route path="/city/:cityName" element={<CityPage />} />
+                <Route path="/:city/search" element={<CitySearchPage />} />
+                <Route path="/featured" element={<FeaturedPage />} />
+                <Route path="/trending" element={<TrendingPage />} />
+                <Route path="/sponsored" element={<SponsoredPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />

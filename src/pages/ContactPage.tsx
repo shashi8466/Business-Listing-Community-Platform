@@ -153,7 +153,7 @@ const ContactPage = () => {
                           value={formData.subject}
                           onValueChange={(value) => setFormData(prev => ({ ...prev, subject: value }))}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger id="subject">
                             <SelectValue placeholder="Select a topic" />
                           </SelectTrigger>
                           <SelectContent>

@@ -67,6 +67,8 @@ const SearchPage = () => {
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
+                    id="search-query"
+                    name="search"
                     type="text"
                     placeholder="Search businesses, services..."
                     value={searchQuery}
@@ -75,7 +77,7 @@ const SearchPage = () => {
                   />
                 </div>
                 <Select value={selectedCity || "all"} onValueChange={(val) => setSelectedCity(val === "all" ? "" : val)}>
-                  <SelectTrigger className="w-full md:w-48 h-12">
+                  <SelectTrigger id="city-filter" className="w-full md:w-48 h-12">
                     <MapPin className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="All Cities" />
                   </SelectTrigger>

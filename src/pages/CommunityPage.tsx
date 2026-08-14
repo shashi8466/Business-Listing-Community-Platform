@@ -25,10 +25,10 @@ import CommunityMembers from "@/components/community/CommunityMembers";
 
 const CommunityPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const { toast } = useToast();
   const { community, membership, loading, error, joinCommunity, leaveCommunity } = useCommunity(slug);
-  const { discussions, createDiscussion } = useDiscussions(community?.id);
+  const { discussions, createDiscussion, deleteDiscussion } = useDiscussions(community?.id);
   const { events, createEvent } = useCommunityEvents(community?.id);
 
   const handleJoin = async () => {
@@ -88,7 +88,9 @@ const CommunityPage = () => {
     );
   }
 
-  const isAdmin = membership?.role === 'admin';
+  const isGlobalAdmin = userProfile?.role === 'admin';
+  const isOwner = membership?.role === 'admin' || membership?.role === 'owner' || isGlobalAdmin;
+  const isAdmin = isOwner;
   const isModerator = membership?.role === 'moderator' || isAdmin;
 
   return (
@@ -169,7 +171,7 @@ const CommunityPage = () => {
                   {membership ? (
                     <>
                       <Button variant="outline" onClick={handleLeave}>
-                        Leave
+                        Leave Community
                       </Button>
                       {isModerator && (
                         <Link to={`/community/${slug}/admin`}>
@@ -221,16 +223,19 @@ const CommunityPage = () => {
                   communitySlug={community.slug}
                   discussions={discussions}
                   isMember={!!membership}
+                  isModerator={isModerator}
+                  currentUserId={user?.id}
                   onCreateDiscussion={createDiscussion}
+                  onDeleteDiscussion={deleteDiscussion}
                 />
               </TabsContent>
 
-              <TabsContent value="events">
+              <TabsContent value="events" className="mt-6">
                 <CommunityEvents
                   communityId={community.id}
+                  communitySlug={community.slug}
                   events={events}
-                  isMember={!!membership}
-                  onCreateEvent={createEvent}
+                  canCreateEvent={isModerator}
                 />
               </TabsContent>
 

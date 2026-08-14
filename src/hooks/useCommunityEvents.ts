@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { CommunityEvent, EventRsvp } from '@/types/community';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useCommunityEvents = (communityId: string | undefined) => {
   const [events, setEvents] = useState<CommunityEvent[]>([]);
@@ -45,10 +46,17 @@ export const useCommunityEvents = (communityId: string | undefined) => {
     is_virtual?: boolean;
     virtual_link?: string;
     max_attendees?: number;
+    is_paid_event?: boolean;
+    ticket_price?: number;
+    currency?: string;
+    requires_registration?: boolean;
+    total_tickets?: number | null;
+    ticket_types?: any[];
   }) => {
     if (!communityId) return { error: 'No community' };
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
     if (!user) return { error: 'Not authenticated' };
 
     const { data, error } = await supabase
@@ -74,6 +82,7 @@ export const useCommunityEvents = (communityId: string | undefined) => {
 };
 
 export const useEvent = (eventId: string | undefined) => {
+  const { user } = useAuth();
   const [event, setEvent] = useState<CommunityEvent | null>(null);
   const [rsvps, setRsvps] = useState<EventRsvp[]>([]);
   const [userRsvp, setUserRsvp] = useState<EventRsvp | null>(null);
@@ -110,10 +119,11 @@ export const useEvent = (eventId: string | undefined) => {
         setRsvps((rsvpData as EventRsvp[]) || []);
 
         // Check user's RSVP
-        const { data: { user } } = await supabase.auth.getUser();
         if (user && rsvpData) {
           const myRsvp = rsvpData.find(r => r.user_id === user.id);
           setUserRsvp(myRsvp as EventRsvp || null);
+        } else {
+          setUserRsvp(null);
         }
       } catch (err: any) {
         console.error('Error fetching event:', err);
@@ -124,12 +134,13 @@ export const useEvent = (eventId: string | undefined) => {
     };
 
     fetchEvent();
-  }, [eventId]);
+  }, [eventId, user]);
 
   const updateRsvp = async (status: 'going' | 'interested' | 'not_going') => {
     if (!eventId) return { error: 'No event' };
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
     if (!user) return { error: 'Not authenticated' };
 
     if (userRsvp) {

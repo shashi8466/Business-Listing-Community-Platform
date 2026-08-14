@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { UserRole } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,14 +18,26 @@ const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [role, setRole] = useState<UserRole>("user");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { signIn, signUp, resetPassword } = useAuth();
+  const { user, userProfile, signIn, signUp, resetPassword, loading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Route authenticated users based on strict role from userProfile
+  useEffect(() => {
+    if (!loading && user && userProfile) {
+      if (userProfile.role === 'admin') {
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    }
+  }, [user, userProfile, loading, navigate]);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,17 +50,19 @@ const AuthPage = () => {
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
-        navigate("/");
+        
+        // Navigation will be handled automatically by the useEffect above once userProfile is loaded.
       } else if (mode === "signup") {
         if (!displayName.trim()) {
           throw new Error("Please enter your name");
         }
-        await signUp(email, password, displayName);
+        await signUp(email, password, displayName, role);
         toast({
           title: "Account created!",
           description: "Welcome to d4desi. Your account has been created.",
         });
-        navigate("/");
+        
+        // Navigation will be handled automatically by the useEffect above once userProfile is loaded.
       } else if (mode === "forgot-password") {
         await resetPassword(email);
         toast({
@@ -58,15 +74,13 @@ const AuthPage = () => {
     } catch (error: any) {
       let message = "An error occurred. Please try again.";
       
-      if (error.code === "auth/email-already-in-use") {
+      if (error.message?.includes("already registered") || error.message?.includes("already in use")) {
         message = "An account with this email already exists.";
-      } else if (error.code === "auth/invalid-email") {
+      } else if (error.message?.includes("valid email")) {
         message = "Please enter a valid email address.";
-      } else if (error.code === "auth/weak-password") {
+      } else if (error.message?.includes("Password should be") || error.message?.includes("weak password")) {
         message = "Password should be at least 6 characters.";
-      } else if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
-        message = "Invalid email or password.";
-      } else if (error.code === "auth/invalid-credential") {
+      } else if (error.message?.includes("Invalid login credentials")) {
         message = "Invalid email or password.";
       } else if (error.message) {
         message = error.message;
@@ -87,10 +101,10 @@ const AuthPage = () => {
     setIsLoading(true);
     
     try {
-      // Phone auth requires Firebase reCAPTCHA setup
+      // Phone auth typically requires a third party provider like Twilio in Supabase
       toast({
         title: "Phone Authentication",
-        description: "Phone authentication requires additional Firebase configuration. Please use email login for now.",
+        description: "Phone authentication is currently disabled.",
         variant: "destructive",
       });
     } catch (error: any) {
@@ -206,22 +220,52 @@ const AuthPage = () => {
             {(mode === "login" || mode === "signup") && (
               <form onSubmit={handleEmailAuth} className="space-y-5">
                 {mode === "signup" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="displayName">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                      <Input
-                        id="displayName"
-                        name="displayName"
-                        type="text"
-                        placeholder="Enter your full name"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        className="pl-10"
-                        required
-                      />
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="displayName">Full Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input
+                          id="displayName"
+                          name="displayName"
+                          type="text"
+                          placeholder="Enter your full name"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
+
+                    <div className="space-y-3">
+                      <Label>Account Type</Label>
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="role" 
+                            value="user" 
+                            checked={role === "user"} 
+                            onChange={(e) => setRole(e.target.value as UserRole)}
+                            className="accent-primary h-4 w-4"
+                          />
+                          <span className="text-sm">Member</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="role" 
+                            value="business" 
+                            checked={role === "business"} 
+                            onChange={(e) => setRole(e.target.value as UserRole)}
+                            className="accent-primary h-4 w-4"
+                          />
+                          <span className="text-sm">Business Owner</span>
+                        </label>
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 <div className="space-y-2">

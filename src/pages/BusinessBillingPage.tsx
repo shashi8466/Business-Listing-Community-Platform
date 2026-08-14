@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
   CreditCard, Download, Clock, CheckCircle, XCircle, 
-  AlertCircle, ArrowUpCircle, FileText
+  AlertCircle, ArrowUpCircle, FileText, ArrowLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,14 +61,8 @@ const BusinessBillingPage = () => {
     setCancelDialogOpen(false);
   };
 
-  // Mock payments for demo
-  const mockPayments = [
-    { id: '1', created_at: '2024-01-15T10:00:00Z', description: 'Premium Plan - Monthly', amount: 29.99, status: 'completed', payment_type: 'subscription' },
-    { id: '2', created_at: '2023-12-15T10:00:00Z', description: 'Premium Plan - Monthly', amount: 29.99, status: 'completed', payment_type: 'subscription' },
-    { id: '3', created_at: '2023-11-15T10:00:00Z', description: 'Premium Plan - Monthly', amount: 29.99, status: 'completed', payment_type: 'subscription' },
-  ];
-
-  const displayPayments = payments.length > 0 ? payments : mockPayments;
+  // Instead of mock, we only rely on Supabase data
+  const displayPayments = payments;
 
   return (
     <>
@@ -82,6 +76,11 @@ const BusinessBillingPage = () => {
 
         <main className="flex-1 py-8">
           <div className="container mx-auto px-4 max-w-4xl">
+            <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 -ml-4 gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+            
             <h1 className="text-3xl font-bold text-foreground flex items-center gap-3 mb-8">
               <CreditCard className="h-8 w-8 text-primary" />
               Billing & Invoices

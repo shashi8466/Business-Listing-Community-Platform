@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
   Users, Mail, Phone, Eye, MessageSquare, CheckCircle, 
-  Clock, XCircle, Filter, Search, CreditCard
+  Clock, XCircle, Filter, Search, CreditCard, ArrowLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -85,7 +85,12 @@ const BusinessLeadsPage = () => {
         <Header />
 
         <main className="flex-1 py-8">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 -ml-4 gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+            
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
               <div>
                 <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">

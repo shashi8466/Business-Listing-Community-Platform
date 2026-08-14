@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { Community } from '@/types/community';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UseCommunityOptions {
   type?: 'city' | 'interest';
@@ -8,6 +9,7 @@ interface UseCommunityOptions {
   interest?: string;
   featured?: boolean;
   limit?: number;
+  sort?: 'popular' | 'recent';
 }
 
 export const useCommunities = (options: UseCommunityOptions = {}) => {
@@ -22,8 +24,13 @@ export const useCommunities = (options: UseCommunityOptions = {}) => {
         let query = supabase
           .from('communities')
           .select('*')
-          .eq('is_active', true)
-          .order('member_count', { ascending: false });
+          .eq('is_active', true);
+          
+        if (options.sort === 'recent') {
+          query = query.order('created_at', { ascending: false });
+        } else {
+          query = query.order('member_count', { ascending: false });
+        }
 
         if (options.type) {
           query = query.eq('type', options.type);
@@ -43,7 +50,15 @@ export const useCommunities = (options: UseCommunityOptions = {}) => {
 
         const { data, error } = await query;
 
-        if (error) throw error;
+        if (error) {
+          if (error.code === '42P01') {
+            setCommunities([]);
+            setLoading(false);
+            return;
+          }
+          throw error;
+        }
+        
         setCommunities((data as Community[]) || []);
       } catch (err: any) {
         console.error('Error fetching communities:', err);
@@ -60,6 +75,7 @@ export const useCommunities = (options: UseCommunityOptions = {}) => {
 };
 
 export const useCommunity = (slug: string | undefined) => {
+  const { user } = useAuth();
   const [community, setCommunity] = useState<Community | null>(null);
   const [membership, setMembership] = useState<{ role: string } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,20 +98,31 @@ export const useCommunity = (slug: string | undefined) => {
           .eq('slug', slug)
           .maybeSingle();
 
-        if (communityError) throw communityError;
+        if (communityError) {
+          if (communityError.code === '42P01') {
+            setCommunity(null);
+            setLoading(false);
+            return;
+          }
+          throw communityError;
+        }
         setCommunity(communityData as Community);
 
-        // Check membership if user is logged in
-        const { data: { user } } = await supabase.auth.getUser();
         if (user && communityData) {
-          const { data: memberData } = await supabase
+          const { data: memberData, error: memberError } = await supabase
             .from('community_members')
             .select('role')
             .eq('community_id', communityData.id)
             .eq('user_id', user.id)
             .maybeSingle();
           
-          setMembership(memberData);
+          if (memberError && memberError.code !== '42P01') {
+            console.warn('Error fetching membership:', memberError.message);
+          } else {
+            setMembership(memberData);
+          }
+        } else {
+          setMembership(null);
         }
       } catch (err: any) {
         console.error('Error fetching community:', err);
@@ -106,12 +133,10 @@ export const useCommunity = (slug: string | undefined) => {
     };
 
     fetchCommunity();
-  }, [slug]);
+  }, [slug, user]);
 
   const joinCommunity = async () => {
     if (!community) return { error: 'No community' };
-    
-    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: 'Not authenticated' };
 
     const { error } = await supabase
@@ -126,8 +151,6 @@ export const useCommunity = (slug: string | undefined) => {
 
   const leaveCommunity = async () => {
     if (!community) return { error: 'No community' };
-    
-    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: 'Not authenticated' };
 
     const { error } = await supabase
@@ -159,7 +182,8 @@ export const useCreateCommunity = () => {
   }) => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) throw new Error('Not authenticated');
 
       const slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');

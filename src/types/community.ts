@@ -37,6 +37,12 @@ export interface Discussion {
   reply_count: number;
   created_at: string;
   updated_at: string;
+  // Attachment support
+  attachment_url?: string | null;
+  attachment_type?: 'image' | 'video' | 'file' | null;
+  attachment_name?: string | null;
+  // Resolved author info
+  author_name?: string | null;
   author_email?: string;
 }
 
@@ -49,6 +55,12 @@ export interface DiscussionComment {
   like_count: number;
   created_at: string;
   updated_at: string;
+  // Attachment support
+  attachment_url?: string | null;
+  attachment_type?: 'image' | 'video' | 'file' | null;
+  attachment_name?: string | null;
+  // Resolved author info
+  author_name?: string | null;
   author_email?: string;
 }
 

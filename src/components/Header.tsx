@@ -26,6 +26,7 @@ import {
   CreditCard,
   BarChart3,
   ShieldCheck,
+  Ticket,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -110,53 +111,22 @@ const Header = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild>
-                    <Link to="/profile" className="cursor-pointer gap-2">
-                      <User className="h-4 w-4" />
-                      My Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/favorites" className="cursor-pointer gap-2">
-                      <Heart className="h-4 w-4" />
-                      Saved Listings
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/dashboard" className="cursor-pointer gap-2">
-                      <Building2 className="h-4 w-4" />
-                      My Businesses
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/business/leads" className="cursor-pointer gap-2">
-                      <Users className="h-4 w-4" />
-                      Leads
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/business/analytics" className="cursor-pointer gap-2">
-                      <BarChart3 className="h-4 w-4" />
-                      Analytics
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/business/billing" className="cursor-pointer gap-2">
-                      <CreditCard className="h-4 w-4" />
-                      Billing & Invoices
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin/dashboard" className="cursor-pointer gap-2">
-                      <ShieldCheck className="h-4 w-4" />
+                  {userProfile?.role === 'admin' && (
+                    <DropdownMenuItem onSelect={() => navigate('/admin/dashboard')} className="cursor-pointer gap-2">
+                      <Settings className="h-4 w-4" />
                       Admin Dashboard
-                    </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onSelect={() => navigate('/profile')} className="cursor-pointer gap-2">
+                    <User className="h-4 w-4" />
+                    Edit Profile
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={handleSignOut}
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      handleSignOut();
+                    }}
                     className="cursor-pointer gap-2 text-destructive"
                   >
                     <LogOut className="h-4 w-4" />
@@ -232,12 +202,12 @@ const Header = () => {
                     Saved Listings
                   </Link>
                   <Link
-                    to="/dashboard"
+                    to={userProfile?.role === 'admin' ? "/admin/dashboard" : "/dashboard"}
                     className="px-4 py-2 text-foreground/80 hover:text-primary hover:bg-muted transition-colors rounded-lg flex items-center gap-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Settings className="h-4 w-4" />
-                    Dashboard
+                    {userProfile?.role === 'admin' ? "Admin Dashboard" : "Dashboard"}
                   </Link>
                 </>
               )}

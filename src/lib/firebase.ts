@@ -1,53 +1,15 @@
-import { useEffect, useState } from "react";
-import { firebaseConfig } from "./firebase-config";
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 
-// Lazy initialization to avoid build issues with Firebase types
-let firebaseApp: ReturnType<typeof import("firebase/app").initializeApp> | null = null;
-
-export const getFirebaseApp = async () => {
-  if (!firebaseApp) {
-    const { initializeApp } = await import("firebase/app");
-    firebaseApp = initializeApp(firebaseConfig);
-  }
-  return firebaseApp;
+const firebaseConfig = {
+  apiKey: "AIzaSyC5L-xmAFxZ4sywV4dF0HIcJuvMT8EoxT8",
+  authDomain: "businesshub-9bef1.firebaseapp.com",
+  projectId: "businesshub-9bef1",
+  storageBucket: "businesshub-9bef1.firebasestorage.app",
+  messagingSenderId: "40109772498",
+  appId: "1:40109772498:web:5a35b4433aebae1a73670b",
+  measurementId: "G-2D7H2RKKZ1"
 };
 
-export const getFirebaseAuth = async () => {
-  const app = await getFirebaseApp();
-  const { getAuth } = await import("firebase/auth");
-  return getAuth(app);
-};
-
-export const getFirebaseDb = async () => {
-  const app = await getFirebaseApp();
-  const { getFirestore } = await import("firebase/firestore");
-  return getFirestore(app);
-};
-
-export const getFirebaseStorage = async () => {
-  const app = await getFirebaseApp();
-  const { getStorage } = await import("firebase/storage");
-  return getStorage(app);
-};
-
-// Hook for using Firebase Auth
-export const useFirebaseAuth = () => {
-  const [auth, setAuth] = useState<Awaited<ReturnType<typeof getFirebaseAuth>> | null>(null);
-  
-  useEffect(() => {
-    getFirebaseAuth().then(setAuth);
-  }, []);
-  
-  return auth;
-};
-
-// Hook for using Firestore
-export const useFirestore = () => {
-  const [db, setDb] = useState<Awaited<ReturnType<typeof getFirebaseDb>> | null>(null);
-  
-  useEffect(() => {
-    getFirebaseDb().then(setDb);
-  }, []);
-  
-  return db;
-};
+export const app = initializeApp(firebaseConfig);
+export const analytics = getAnalytics(app);

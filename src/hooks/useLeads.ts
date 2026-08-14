@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { collection, query, where, orderBy, getDocs, addDoc, updateDoc, doc, DocumentData } from "firebase/firestore";
-import { getFirebaseDb } from "@/lib/firebase";
+import { supabase } from "@/lib/supabase";
 import { Lead, LeadStatus } from "@/types";
 
 interface UseLeadsOptions {
@@ -16,47 +15,47 @@ export const useLeads = (options: UseLeadsOptions = {}) => {
   const fetchLeads = useCallback(async () => {
     try {
       setLoading(true);
-      const db = await getFirebaseDb();
       
-      let q;
+      let query = supabase
+        .from("leads")
+        .select("*, businesses(name)")
+        .order("created_at", { ascending: false });
+
       if (options.businessId) {
-        q = query(
-          collection(db, "leads"),
-          where("businessId", "==", options.businessId),
-          orderBy("createdAt", "desc")
-        );
+        query = query.eq("business_id", options.businessId);
       } else if (options.userId) {
-        q = query(
-          collection(db, "leads"),
-          where("userId", "==", options.userId),
-          orderBy("createdAt", "desc")
-        );
+        // The new Supabase schema doesn't have user_id on leads. 
+        // We will just return empty for now if this is requested.
+        setLeads([]);
+        setLoading(false);
+        return;
       } else {
         setLeads([]);
         setLoading(false);
         return;
       }
       
-      const querySnapshot = await getDocs(q);
-      const results: Lead[] = querySnapshot.docs.map(docSnapshot => {
-        const data = docSnapshot.data() as DocumentData;
-        return {
-          id: docSnapshot.id,
-          businessId: data.businessId,
-          businessName: data.businessName,
-          userId: data.userId,
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          message: data.message,
-          status: data.status,
-          notes: data.notes,
-          createdAt: data.createdAt?.toDate?.() || new Date(),
-          updatedAt: data.updatedAt?.toDate?.() || new Date()
-        };
-      });
+      const { data, error: fetchError } = await query;
       
-      setLeads(results);
+      if (fetchError) throw fetchError;
+      
+      if (data) {
+        const results: Lead[] = data.map((d: any) => ({
+          id: d.id,
+          businessId: d.business_id,
+          businessName: d.businesses?.name || "Unknown Business",
+          name: d.name,
+          email: d.email,
+          phone: d.phone || "",
+          message: d.message || "",
+          status: (d.status === 'new' ? 'pending' : d.status) as LeadStatus, // Map new to pending
+          notes: d.metadata?.notes || "",
+          createdAt: new Date(d.created_at),
+          updatedAt: new Date(d.updated_at)
+        }));
+        
+        setLeads(results);
+      }
       setError(null);
     } catch (err: any) {
       console.error("Error fetching leads:", err);
@@ -67,55 +66,83 @@ export const useLeads = (options: UseLeadsOptions = {}) => {
   }, [options.businessId, options.userId]);
 
   useEffect(() => {
-    fetchLeads();
+    let mounted = true;
+    if (mounted) fetchLeads();
+    return () => { mounted = false; };
   }, [fetchLeads]);
 
   const createLead = async (lead: Omit<Lead, 'id' | 'createdAt' | 'updatedAt' | 'status'>) => {
-    const db = await getFirebaseDb();
+    const { data, error } = await supabase
+      .from("leads")
+      .insert({
+        business_id: lead.businessId,
+        name: lead.name,
+        email: lead.email,
+        phone: lead.phone,
+        message: lead.message,
+        status: 'new'
+      })
+      .select("*, businesses(name)")
+      .single();
+      
+    if (error) throw error;
     
-    const newLead = {
-      ...lead,
-      status: 'pending' as LeadStatus,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    const docRef = await addDoc(collection(db, "leads"), newLead);
-    
-    const createdLead = { ...newLead, id: docRef.id } as Lead;
-    setLeads(prev => [createdLead, ...prev]);
-    
-    return docRef.id;
+    if (data) {
+      const createdLead: Lead = {
+        id: data.id,
+        businessId: data.business_id,
+        businessName: data.businesses?.name || lead.businessName || "Unknown Business",
+        name: data.name,
+        email: data.email,
+        phone: data.phone || "",
+        message: data.message || "",
+        status: 'pending',
+        notes: "",
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at)
+      };
+      
+      setLeads(prev => [createdLead, ...prev]);
+      return data.id;
+    }
   };
 
   const updateLeadStatus = async (leadId: string, status: LeadStatus, notes?: string) => {
-    const db = await getFirebaseDb();
-    
-    const updateData: Record<string, any> = {
-      status,
-      updatedAt: new Date()
+    const updateData: any = {
+      status: status === 'pending' ? 'new' : status
     };
     
     if (notes !== undefined) {
-      updateData.notes = notes;
+      // In Supabase schema, notes might be in metadata jsonb
+      updateData.metadata = { notes };
     }
     
-    await updateDoc(doc(db, "leads", leadId), updateData);
+    const { error } = await supabase
+      .from("leads")
+      .update(updateData)
+      .eq("id", leadId);
+      
+    if (error) throw error;
     
-    setLeads(prev => prev.map(l => 
-      l.id === leadId 
-        ? { ...l, status, notes: notes ?? l.notes, updatedAt: new Date() }
-        : l
-    ));
+    setLeads(prev => prev.map(lead => {
+      if (lead.id === leadId) {
+        return {
+          ...lead,
+          status,
+          ...(notes !== undefined ? { notes } : {})
+        };
+      }
+      return lead;
+    }));
   };
 
   const getLeadStats = () => {
-    const total = leads.length;
-    const pending = leads.filter(l => l.status === 'pending').length;
-    const contacted = leads.filter(l => l.status === 'contacted').length;
-    const closed = leads.filter(l => l.status === 'closed').length;
-    
-    return { total, pending, contacted, closed };
+    return {
+      total: leads.length,
+      new: leads.filter(l => l.status === 'pending').length,
+      contacted: leads.filter(l => l.status === 'contacted').length,
+      converted: leads.filter(l => l.status === 'converted').length
+    };
   };
 
   return { leads, loading, error, createLead, updateLeadStatus, getLeadStats, refetch: fetchLeads };

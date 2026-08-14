@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
   User,
@@ -47,9 +47,16 @@ import { CATEGORIES, LeadStatus } from "@/types";
 const DashboardPage = () => {
   const { user, userProfile, signOut, loading, updateUserProfile, toggleFavorite } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({ title: "Logged out successfully" });
+    navigate("/");
+  };
   const { favorites, loading: favoritesLoading } = useFavorites();
-  const { reviews, loading: reviewsLoading, deleteReview } = useUserReviews(user?.uid);
-  const { businesses: myBusinesses, loading: businessesLoading, deleteBusiness } = useMyBusinesses(user?.uid);
+  const { reviews, loading: reviewsLoading, deleteReview } = useUserReviews(user?.id);
+  const { businesses: myBusinesses, loading: businessesLoading, deleteBusiness } = useMyBusinesses(user?.id);
   
   // Get first business ID for leads (business owners typically manage one business)
   const firstBusinessId = myBusinesses.length > 0 ? myBusinesses[0].id : undefined;
@@ -213,7 +220,7 @@ const DashboardPage = () => {
                   </div>
 
                   <nav className="space-y-1">
-                    {myBusinesses.length > 0 && (
+                    {userProfile?.role === 'business' && (
                       <button
                         onClick={() => setActiveTab("overview")}
                         className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors ${
@@ -223,7 +230,7 @@ const DashboardPage = () => {
                         }`}
                       >
                         <BarChart3 className="h-4 w-4" />
-                        Overview
+                        Business Management
                       </button>
                     )}
                     <button
@@ -270,7 +277,7 @@ const DashboardPage = () => {
                       <Store className="h-4 w-4" />
                       My Listings
                     </button>
-                    {myBusinesses.length > 0 && (
+                    {userProfile?.role === 'business' && (
                       <button
                         onClick={() => setActiveTab("leads")}
                         className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors ${
@@ -302,27 +309,21 @@ const DashboardPage = () => {
                   </nav>
 
                   <div className="mt-6 pt-6 border-t border-border space-y-3">
-                    {userProfile?.role === 'admin' && (
-                      <Link to="/admin">
-                        <Button variant="default" className="w-full gap-2">
-                          <Store className="h-4 w-4" />
-                          Admin Panel
+                    {userProfile?.role !== 'business' && (
+                      <Link to="/list-business">
+                        <Button variant="outline" className="w-full gap-2">
+                          <Building2 className="h-4 w-4" />
+                          List Your Business
                         </Button>
                       </Link>
                     )}
-                    <Link to="/list-business">
-                      <Button variant="outline" className="w-full gap-2">
-                        <Building2 className="h-4 w-4" />
-                        List Your Business
-                      </Button>
-                    </Link>
                     <Button 
                       variant="ghost" 
                       className="w-full gap-2 text-destructive hover:text-destructive"
-                      onClick={signOut}
+                      onClick={handleSignOut}
                     >
                       <LogOut className="h-4 w-4" />
-                      Sign Out
+                      Logout
                     </Button>
                   </div>
                 </div>

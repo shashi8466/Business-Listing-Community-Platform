@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Function to check if user owns the document
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      // Anyone can read a user profile (needed for reviews, business owners)
+      allow read: if true;
+      // Users can only update their own profile, Admins can do anything
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update, delete: if isOwner(userId) || isAdmin();
+    }
+
+    // Businesses Collection
+    match /businesses/{businessId} {
+      // Anyone can read business listings
+      allow read: if true;
+      // Any authenticated user can create a business (role check happens in app)
+      allow create: if request.auth != null;
+      // Only the business owner or an admin can update/delete
+      allow update, delete: if (request.auth != null && resource.data.ownerId == request.auth.uid) || isAdmin();
+    }
+
+    // Reviews Collection
+    match /reviews/{reviewId} {
+      // Anyone can read reviews
+      allow read: if true;
+      // Authenticated users can create reviews
+      allow create: if request.auth != null;
+      // Only the reviewer or an admin can update/delete
+      allow update, delete: if (request.auth != null && resource.data.userId == request.auth.uid) || isAdmin();
+    }
+
+    // Leads Collection
+    match /leads/{leadId} {
+      // Business owners can read their leads, admins can read all
+      allow read: if request.auth != null && (
+        isAdmin() || 
+        get(/databases/$(database)/documents/businesses/$(resource.data.businessId)).data.ownerId == request.auth.uid
+      );
+      // Anyone can create a lead (submit an inquiry)
+      allow create: if true;
+      // Only business owners or admins can update (e.g. change status)
+      allow update: if request.auth != null && (
+        isAdmin() || 
+        get(/databases/$(database)/documents/businesses/$(resource.data.businessId)).data.ownerId == request.auth.uid
+      );
+      allow delete: if isAdmin();
+    }
+    
+    // Inquiries Collection
+    match /inquiries/{inquiryId} {
+      allow read: if request.auth != null && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin();
+    }
+    
+    // Categories Collection
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Events Collection
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if (request.auth != null && resource.data.ownerId == request.auth.uid) || isAdmin();
+    }
+    
+    // Payments Collection
+    match /payments/{paymentId} {
+      allow read: if request.auth != null && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow write: if isAdmin(); // Should normally be written by secure backend, but allowing admin for manual updates
+    }
+    
+    // Reports Collection
+    match /reports/{reportId} {
+      allow read: if isAdmin();
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin();
+    }
+    
+    // Default deny for anything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

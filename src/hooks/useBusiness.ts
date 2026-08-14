@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { doc, getDoc, collection, query, where, orderBy, getDocs, addDoc, updateDoc, increment, deleteDoc } from "firebase/firestore";
-import { getFirebaseDb } from "@/lib/firebase";
+import { supabase } from "@/lib/supabase";
 import { Business, Review } from "@/types";
 
 // Sample data as fallback
@@ -78,57 +77,96 @@ export const useBusiness = (businessId: string | undefined) => {
     
     try {
       setLoading(true);
-      const db = await getFirebaseDb();
       
-      // Fetch business
-      const businessDoc = await getDoc(doc(db, "businesses", businessId));
-      if (businessDoc.exists()) {
-        const data = businessDoc.data();
-        setBusiness({ 
-          id: businessDoc.id, 
-          ...data,
-          createdAt: data.createdAt?.toDate?.() || new Date(),
-          updatedAt: data.updatedAt?.toDate?.() || new Date()
-        } as Business);
+      // Attempt to find by ID first, then by slug if not a valid UUID format
+      let isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(businessId);
+      
+      const { data: businessData, error: businessError } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq(isUUID ? 'id' : 'slug', businessId)
+        .maybeSingle();
+      
+      if (businessError) throw businessError;
+
+      if (businessData) {
+        const b = businessData;
+        setBusiness({
+          id: b.id,
+          ownerId: b.owner_id,
+          name: b.name,
+          slug: b.slug,
+          description: b.description || '',
+          category: b.category,
+          subcategory: b.subcategory,
+          address: {
+            street: b.address || '',
+            city: b.city,
+            state: b.state || '',
+            zipCode: b.zip_code || ''
+          },
+          phone: b.phone || '',
+          email: b.email || '',
+          website: b.website,
+          images: [b.cover_image_url, ...(b.gallery_images || [])].filter(Boolean),
+          rating: Number(b.rating_average) || 0,
+          reviewCount: Number(b.rating_count) || 0,
+          featured: b.is_featured,
+          verified: b.is_verified,
+          approved: b.status === 'approved',
+          active: b.status !== 'suspended' && b.status !== 'rejected',
+          services: b.tags || [],
+          hours: b.business_hours || {},
+          views: b.view_count || 0,
+          createdAt: new Date(b.created_at),
+          updatedAt: new Date(b.updated_at)
+        });
         
-        // Increment view count
-        await updateDoc(doc(db, "businesses", businessId), {
-          views: increment(1)
-        }).catch(() => {}); // Ignore errors for view count
+        // Fetch reviews
+        const { data: reviewsData } = await supabase
+          .from('business_reviews')
+          .select('*, users!user_id(display_name, raw_user_meta_data)')
+          .eq('business_id', b.id)
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false });
+
+        if (reviewsData) {
+          setReviews(reviewsData.map((r: any) => ({
+            id: r.id,
+            businessId: r.business_id,
+            userId: r.user_id,
+            userName: r.users?.raw_user_meta_data?.displayName || r.users?.display_name || 'Anonymous',
+            rating: r.rating,
+            title: r.title || '',
+            content: r.content || '',
+            helpful: r.helpful_count || 0,
+            createdAt: new Date(r.created_at),
+            updatedAt: new Date(r.updated_at)
+          })));
+        } else {
+          setReviews([]);
+        }
+
+        // Increment view count via RPC if available, or ignore
+        // supabase.rpc('increment_view_count', { row_id: b.id }).catch(() => {});
       } else {
         // Use sample data if not found
         if (businessId === "1" || businessId === "sample") {
           setBusiness(sampleBusiness);
+          setReviews(sampleReviews);
         } else {
           setError("Business not found");
-          setBusiness(sampleBusiness); // Fallback to sample
+          setBusiness(null);
         }
       }
-      
-      // Fetch reviews
-      try {
-        const reviewsQuery = query(
-          collection(db, "reviews"),
-          where("businessId", "==", businessId),
-          orderBy("createdAt", "desc")
-        );
-        const reviewsSnapshot = await getDocs(reviewsQuery);
-        const reviewsData = reviewsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate?.() || new Date()
-        })) as Review[];
-        
-        setReviews(reviewsData.length > 0 ? reviewsData : sampleReviews);
-      } catch {
-        setReviews(sampleReviews);
-      }
-      
     } catch (err: any) {
       console.error("Error fetching business:", err);
       setError(err.message);
-      setBusiness(sampleBusiness);
-      setReviews(sampleReviews);
+      
+      if (businessId === "1" || businessId === "sample") {
+        setBusiness(sampleBusiness);
+        setReviews(sampleReviews);
+      }
     } finally {
       setLoading(false);
     }
@@ -138,68 +176,40 @@ export const useBusiness = (businessId: string | undefined) => {
     fetchBusiness();
   }, [fetchBusiness]);
 
-  const addReview = async (review: Omit<Review, 'id' | 'createdAt' | 'helpful' | 'updatedAt'>) => {
-    if (!businessId) throw new Error("No business ID");
+  const addReview = async (reviewData: Omit<Review, "id" | "createdAt" | "helpful">) => {
+    if (!business) throw new Error("No business loaded");
     
-    const db = await getFirebaseDb();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user) throw new Error("Must be logged in to review");
+
+    const { data, error } = await supabase.from('business_reviews').insert({
+      business_id: business.id,
+      user_id: user.id,
+      rating: reviewData.rating,
+      title: reviewData.title,
+      content: reviewData.content,
+      status: 'pending' // or approved depending on moderation strategy
+    }).select().single();
+
+    if (error) throw error;
     
-    const newReview = {
-      ...review,
-      createdAt: new Date(),
-      helpful: 0
-    };
-    
-    const docRef = await addDoc(collection(db, "reviews"), newReview);
-    
-    // Update business rating
-    const allReviews = [...reviews, { ...newReview, id: docRef.id }];
-    const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
-    
-    await updateDoc(doc(db, "businesses", businessId), {
-      rating: Math.round(avgRating * 10) / 10,
-      reviewCount: increment(1)
-    });
-    
-    setReviews(prev => [{ ...newReview, id: docRef.id } as Review, ...prev]);
-    
-    return docRef.id;
+    // Optimistically update
+    if (data) {
+      const newReview: Review = {
+        id: data.id,
+        businessId: data.business_id,
+        userId: data.user_id,
+        userName: reviewData.userName,
+        rating: data.rating,
+        title: data.title || '',
+        content: data.content || '',
+        helpful: 0,
+        createdAt: new Date(data.created_at)
+      };
+      setReviews(prev => [newReview, ...prev]);
+    }
   };
 
-  const deleteReview = async (reviewId: string) => {
-    if (!businessId) throw new Error("No business ID");
-    
-    const db = await getFirebaseDb();
-    await deleteDoc(doc(db, "reviews", reviewId));
-    
-    const remainingReviews = reviews.filter(r => r.id !== reviewId);
-    const avgRating = remainingReviews.length > 0 
-      ? remainingReviews.reduce((sum, r) => sum + r.rating, 0) / remainingReviews.length 
-      : 0;
-    
-    await updateDoc(doc(db, "businesses", businessId), {
-      rating: Math.round(avgRating * 10) / 10,
-      reviewCount: increment(-1)
-    });
-    
-    setReviews(remainingReviews);
-  };
-
-  const replyToReview = async (reviewId: string, content: string) => {
-    const db = await getFirebaseDb();
-    
-    await updateDoc(doc(db, "reviews", reviewId), {
-      ownerReply: {
-        content,
-        createdAt: new Date()
-      }
-    });
-    
-    setReviews(prev => prev.map(r => 
-      r.id === reviewId 
-        ? { ...r, ownerReply: { content, createdAt: new Date() } }
-        : r
-    ));
-  };
-
-  return { business, reviews, loading, error, addReview, deleteReview, replyToReview, refetch: fetchBusiness };
+  return { business, reviews, loading, error, refetch: fetchBusiness, addReview };
 };

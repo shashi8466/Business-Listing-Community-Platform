@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { collection, query, where, orderBy, limit, getDocs, QueryConstraint } from "firebase/firestore";
-import { getFirebaseDb } from "@/lib/firebase";
+import { supabase } from "@/lib/supabase";
 import { Business } from "@/types";
 
 interface UseBusinessesOptions {
@@ -14,7 +13,7 @@ interface UseBusinessesOptions {
   ownerId?: string;
 }
 
-// Sample data as fallback when Firestore is empty
+// Sample data as fallback
 const sampleBusinesses: Business[] = [
   {
     id: "1",
@@ -82,72 +81,6 @@ const sampleBusinesses: Business[] = [
     hours: { monday: { open: "15:00", close: "21:00" } },
     createdAt: new Date(),
     updatedAt: new Date()
-  },
-  {
-    id: "4",
-    ownerId: "owner4",
-    name: "Patel Immigration Law",
-    slug: "patel-immigration-law",
-    description: "Experienced immigration attorneys helping families navigate visa and citizenship.",
-    category: "legal",
-    address: { street: "321 Pine St", city: "San Francisco", state: "CA", zipCode: "94102" },
-    phone: "(415) 555-0321",
-    email: "info@patelimmigration.com",
-    images: ["https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=300&fit=crop"],
-    rating: 4.9,
-    reviewCount: 198,
-    featured: true,
-    verified: true,
-    approved: true,
-    active: true,
-    services: ["H1B Visa", "Green Card", "Citizenship"],
-    hours: { monday: { open: "09:00", close: "17:00" } },
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: "5",
-    ownerId: "owner5",
-    name: "Chennai Kitchen",
-    slug: "chennai-kitchen",
-    description: "Authentic South Indian vegetarian cuisine.",
-    category: "restaurants",
-    address: { street: "567 Market St", city: "Chicago", state: "IL", zipCode: "60601" },
-    phone: "(312) 555-0567",
-    email: "info@chennaikitchen.com",
-    images: ["https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&h=300&fit=crop"],
-    rating: 4.6,
-    reviewCount: 312,
-    featured: false,
-    verified: true,
-    approved: true,
-    active: true,
-    services: ["Dine-in", "Takeout", "Delivery"],
-    hours: { monday: { open: "10:00", close: "21:00" } },
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: "6",
-    ownerId: "owner6",
-    name: "Wellness Ayurveda Center",
-    slug: "wellness-ayurveda",
-    description: "Traditional Ayurvedic treatments and wellness consultations.",
-    category: "health",
-    address: { street: "890 Wellness Blvd", city: "Dallas", state: "TX", zipCode: "75201" },
-    phone: "(214) 555-0890",
-    email: "info@wellnessayurveda.com",
-    images: ["https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop"],
-    rating: 4.8,
-    reviewCount: 89,
-    featured: true,
-    verified: true,
-    approved: true,
-    active: true,
-    services: ["Massage", "Panchakarma", "Yoga"],
-    hours: { monday: { open: "09:00", close: "19:00" } },
-    createdAt: new Date(),
-    updatedAt: new Date()
   }
 ];
 
@@ -157,102 +90,138 @@ export const useBusinesses = (options: UseBusinessesOptions = {}) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchBusinesses = async () => {
       try {
         setLoading(true);
-        const db = await getFirebaseDb();
         
-        const constraints: QueryConstraint[] = [];
+        let query = supabase.from('businesses').select('*');
         
-        // Only show approved and active businesses (unless fetching own)
+        // Apply filters
         if (!options.ownerId) {
-          constraints.push(where("approved", "==", true));
-          constraints.push(where("active", "==", true));
+          query = query.eq('status', 'approved');
         }
         
         if (options.ownerId) {
-          constraints.push(where("ownerId", "==", options.ownerId));
+          query = query.eq('owner_id', options.ownerId);
         }
         
         if (options.category) {
-          constraints.push(where("category", "==", options.category));
+          query = query.eq('category', options.category);
         }
         
         if (options.city) {
-          constraints.push(where("address.city", "==", options.city));
+          query = query.ilike('city', options.city);
         }
         
         if (options.featured) {
-          constraints.push(where("featured", "==", true));
+          query = query.eq('is_featured', true);
         }
         
         if (options.limitCount) {
-          constraints.push(limit(options.limitCount));
+          query = query.limit(options.limitCount);
         }
-        
-        const q = query(collection(db, "businesses"), ...constraints);
-        const querySnapshot = await getDocs(q);
-        
-        let results = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate?.() || new Date(),
-          updatedAt: doc.data().updatedAt?.toDate?.() || new Date()
-        })) as Business[];
-        
-        // Client-side search filter if searchQuery provided
+
+        // Search query requires an OR condition across multiple text fields
         if (options.searchQuery) {
-          const searchLower = options.searchQuery.toLowerCase();
-          results = results.filter(b => 
-            b.name.toLowerCase().includes(searchLower) ||
-            b.description.toLowerCase().includes(searchLower) ||
-            b.category.toLowerCase().includes(searchLower)
-          );
+          query = query.or(`name.ilike.%${options.searchQuery}%,description.ilike.%${options.searchQuery}%,category.ilike.%${options.searchQuery}%`);
         }
         
-        // Use sample data if Firestore is empty
-        if (results.length === 0 && !options.ownerId) {
-          let sampleResults = [...sampleBusinesses];
+        // Execute query
+        const { data, error: fetchError } = await query;
+        
+        if (fetchError) throw fetchError;
+        
+        if (data && data.length > 0) {
+          const mappedResults: Business[] = data.map((b: any) => ({
+            id: b.id,
+            ownerId: b.owner_id,
+            name: b.name,
+            slug: b.slug,
+            description: b.description || '',
+            category: b.category,
+            subcategory: b.subcategory,
+            address: {
+              street: b.address || '',
+              city: b.city,
+              state: b.state || '',
+              zipCode: b.zip_code || ''
+            },
+            phone: b.phone || '',
+            email: b.email || '',
+            website: b.website,
+            images: [b.cover_image_url, ...(b.gallery_images || [])].filter(Boolean),
+            rating: Number(b.rating_average) || 0,
+            reviewCount: Number(b.rating_count) || 0,
+            featured: b.is_featured,
+            verified: b.is_verified,
+            approved: b.status === 'approved',
+            active: b.status !== 'suspended' && b.status !== 'rejected',
+            services: b.tags || [],
+            hours: b.business_hours || {},
+            createdAt: new Date(b.created_at),
+            updatedAt: new Date(b.updated_at)
+          }));
           
-          if (options.category) {
-            sampleResults = sampleResults.filter(b => b.category === options.category);
-          }
-          if (options.city) {
-            sampleResults = sampleResults.filter(b => b.address.city === options.city);
-          }
-          if (options.featured) {
-            sampleResults = sampleResults.filter(b => b.featured);
-          }
-          if (options.searchQuery) {
-            const searchLower = options.searchQuery.toLowerCase();
-            sampleResults = sampleResults.filter(b => 
-              b.name.toLowerCase().includes(searchLower) ||
-              b.description.toLowerCase().includes(searchLower)
-            );
-          }
-          if (options.limitCount) {
-            sampleResults = sampleResults.slice(0, options.limitCount);
-          }
+          // Sort by rating desc
+          mappedResults.sort((a, b) => b.rating - a.rating);
           
-          results = sampleResults;
+          if (mounted) {
+            setBusinesses(mappedResults);
+            setError(null);
+          }
+        } else {
+          // Use sample data if Supabase is empty
+          if (mounted && !options.ownerId) {
+            let sampleResults = [...sampleBusinesses];
+            
+            if (options.category) {
+              sampleResults = sampleResults.filter(b => b.category === options.category);
+            }
+            if (options.city) {
+              sampleResults = sampleResults.filter(b => b.address.city.toLowerCase() === options.city?.toLowerCase());
+            }
+            if (options.featured) {
+              sampleResults = sampleResults.filter(b => b.featured);
+            }
+            if (options.searchQuery) {
+              const searchLower = options.searchQuery.toLowerCase();
+              sampleResults = sampleResults.filter(b => 
+                b.name.toLowerCase().includes(searchLower) ||
+                b.description.toLowerCase().includes(searchLower)
+              );
+            }
+            if (options.limitCount) {
+              sampleResults = sampleResults.slice(0, options.limitCount);
+            }
+            
+            setBusinesses(sampleResults);
+            setError(null);
+          } else if (mounted) {
+             setBusinesses([]);
+          }
         }
         
-        // Sort by rating
-        results.sort((a, b) => b.rating - a.rating);
-        
-        setBusinesses(results);
-        setError(null);
       } catch (err: any) {
-        console.error("Error fetching businesses:", err);
-        setError(err.message);
-        // Fallback to sample data on error
-        setBusinesses(sampleBusinesses);
+        console.error("Error fetching businesses from Supabase:", err);
+        if (mounted) {
+          setError(err.message);
+          // Fallback to sample data on error
+          setBusinesses(sampleBusinesses);
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchBusinesses();
+    
+    return () => {
+      mounted = false;
+    };
   }, [options.category, options.city, options.featured, options.searchQuery, options.limitCount, options.ownerId]);
 
   return { businesses, loading, error };

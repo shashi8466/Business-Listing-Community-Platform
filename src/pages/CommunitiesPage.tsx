@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Users, MapPin, Sparkles, TrendingUp, Plus, ArrowRight } from "lucide-react";
+import { Users, MapPin, Sparkles, TrendingUp, Plus, ArrowRight, Clock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
@@ -10,8 +10,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { US_CITIES } from "@/types";
 import { INTEREST_CATEGORIES } from "@/types/community";
 
-const CommunitiesPage = () => {
+const CommunitiesPage = ({ hideLayout = false }: { hideLayout?: boolean }) => {
   const { user } = useAuth();
+  const { communities: recentCommunities, loading: recentLoading } = useCommunities({ sort: 'recent', limit: 2 });
   const { communities: featuredCommunities, loading: featuredLoading } = useCommunities({ featured: true, limit: 6 });
   const { communities: cityCommunities, loading: cityLoading } = useCommunities({ type: 'city', limit: 8 });
   const { communities: interestCommunities, loading: interestLoading } = useCommunities({ type: 'interest', limit: 8 });
@@ -27,10 +28,10 @@ const CommunitiesPage = () => {
         <link rel="canonical" href="https://d4desi.com/communities" />
       </Helmet>
 
-      <div className="min-h-screen flex flex-col bg-background">
-        <Header />
+      <div className={hideLayout ? "" : "min-h-screen flex flex-col bg-background"}>
+        {!hideLayout && <Header />}
 
-        <main className="flex-1">
+        <main className={hideLayout ? "" : "flex-1"}>
           {/* Hero */}
           <section className="bg-gradient-hero py-16 text-primary-foreground">
             <div className="container mx-auto px-4 text-center">
@@ -56,6 +57,63 @@ const CommunitiesPage = () => {
                 <Button size="lg" variant="secondary" asChild>
                   <Link to="/auth">Join the Community</Link>
                 </Button>
+              )}
+            </div>
+          </section>
+
+          {/* Recently Created */}
+          <section className="py-12 bg-muted/20">
+            <div className="container mx-auto px-4 max-w-5xl">
+              <div className="flex justify-between items-center mb-8">
+                <div className="flex items-center gap-3">
+                  <Clock className="h-6 w-6 text-primary" />
+                  <h2 className="text-2xl font-bold text-foreground">
+                    Recently Created
+                  </h2>
+                </div>
+              </div>
+
+              {recentLoading ? (
+                <div className="grid md:grid-cols-2 gap-6">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="bg-card border border-border rounded-xl h-64 animate-pulse" />
+                  ))}
+                </div>
+              ) : recentCommunities.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">No recent communities</div>
+              ) : (
+                <div className="grid md:grid-cols-2 gap-6">
+                  {recentCommunities.map((community) => (
+                    <Link
+                      key={community.id}
+                      to={`/community/${community.slug}`}
+                      className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all flex flex-col"
+                    >
+                      <div className="h-40 bg-orange-100 flex items-center justify-center relative">
+                        <Badge className="absolute top-4 right-4 bg-primary hover:bg-primary text-white">New</Badge>
+                        <Users className="h-16 w-16 text-primary/60" />
+                      </div>
+                      <div className="p-4 flex flex-col flex-1">
+                        <h3 className="font-semibold text-lg text-foreground mb-1">
+                          {community.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          {community.type === 'city' ? community.city : community.interest || 'testing'}
+                        </p>
+                        <div className="mt-auto flex items-center justify-between text-sm text-muted-foreground border-t pt-3">
+                          <span className="flex items-center gap-1">
+                            <Users className="h-4 w-4" />
+                            {community.member_count || 1} members
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            {new Date(community.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               )}
             </div>
           </section>
@@ -249,7 +307,7 @@ const CommunitiesPage = () => {
           </section>
         </main>
 
-        <Footer />
+        {!hideLayout && <Footer />}
       </div>
     </>
   );

@@ -43,7 +43,8 @@ export const useModeration = (communityId: string | undefined) => {
   }) => {
     if (!communityId) return { error: 'No community' };
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
     if (!user) return { error: 'Not authenticated' };
 
     const { data: report, error } = await supabase
@@ -64,7 +65,8 @@ export const useModeration = (communityId: string | undefined) => {
     status: 'resolved' | 'dismissed',
     note?: string
   ) => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
     if (!user) return { error: 'Not authenticated' };
 
     const { error } = await supabase

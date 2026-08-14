@@ -24,7 +24,8 @@ import {
   Star, 
   Lock,
   Edit,
-  Trash2
+  Trash2,
+  ArrowLeft
 } from "lucide-react";
 
 const ProfilePage = () => {
@@ -178,6 +179,15 @@ const ProfilePage = () => {
 
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
+            <div className="mb-6 flex justify-between items-center">
+              <Button asChild variant="outline" className="gap-2">
+                <Link to={userProfile?.role === "admin" ? "/admin/dashboard" : "/dashboard"}>
+                  <ArrowLeft className="h-4 w-4" />
+                  {userProfile?.role === "admin" ? "Back to Admin Console" : "Back to Dashboard"}
+                </Link>
+              </Button>
+            </div>
+
             {/* Profile Header */}
             <Card className="mb-8">
               <CardContent className="pt-6">

@@ -12,7 +12,6 @@ import {
   Globe,
   Loader2,
 } from "lucide-react";
-import { doc, updateDoc } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +28,6 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useBusiness } from "@/hooks/useBusiness";
-import { getFirebaseDb } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES, US_CITIES } from "@/types";
 
@@ -90,7 +88,7 @@ const EditBusinessPage = () => {
   }
 
   // Check ownership or admin
-  const isOwner = business?.ownerId === user.uid;
+  const isOwner = business?.ownerId === user.id;
   const isAdmin = userProfile?.role === "admin";
 
   if (business && !isOwner && !isAdmin) {
@@ -197,25 +195,31 @@ const EditBusinessPage = () => {
 
     setIsSubmitting(true);
     try {
-      const db = await getFirebaseDb();
+      const mappedData: any = {};
+      mappedData.name = formData.name.trim();
+      mappedData.description = formData.description.trim();
+      mappedData.category = formData.category;
+      mappedData.address = formData.street.trim();
+      mappedData.city = formData.city;
+      mappedData.state = formData.state;
+      mappedData.zip_code = formData.zipCode.trim();
+      mappedData.phone = formData.phone.trim();
+      mappedData.email = formData.email.trim();
+      if (formData.website?.trim()) mappedData.website = formData.website.trim();
+      
+      if (images && images.length > 0) {
+        mappedData.cover_image_url = images[0];
+        mappedData.gallery_images = images.slice(1);
+      }
+      
+      mappedData.tags = formData.services;
 
-      await updateDoc(doc(db, "businesses", id), {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        category: formData.category,
-        address: {
-          street: formData.street.trim(),
-          city: formData.city,
-          state: formData.state,
-          zipCode: formData.zipCode.trim(),
-        },
-        phone: formData.phone.trim(),
-        email: formData.email.trim(),
-        ...(formData.website?.trim() ? { website: formData.website.trim() } : {}),
-        images,
-        services: formData.services,
-        updatedAt: new Date(),
-      });
+      const { error } = await supabase
+        .from("businesses")
+        .update(mappedData)
+        .eq("id", id);
+        
+      if (error) throw error;
 
       toast({
         title: "Business Updated",

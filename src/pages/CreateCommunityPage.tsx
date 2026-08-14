@@ -73,17 +73,17 @@ const CreateCommunityPage = () => {
           city: formData.type === "city" ? formData.city : null,
           interest: formData.type === "interest" ? formData.interest : null,
           rules: formData.rules,
-          created_by: user.uid,
+          created_by: user.id,
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      // Add creator as admin member
+      // Add creator as owner
       await supabase.from("community_members").insert({
         community_id: data.id,
-        user_id: user.uid,
+        user_id: user.id,
         role: "admin",
       });
 

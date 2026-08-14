@@ -13,7 +13,7 @@ import {
   Clock,
   CheckCircle2,
 } from "lucide-react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,7 +30,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { getFirebaseDb } from "@/lib/firebase";
+
 import { CATEGORIES, US_CITIES } from "@/types";
 
 const ListBusinessPage = () => {
@@ -112,41 +112,33 @@ const ListBusinessPage = () => {
     setIsSubmitting(true);
 
     try {
-      const db = await getFirebaseDb();
-
       const slug = formData.name
         .trim()
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)+/g, "");
+        .replace(/(^-|-$)+/g, "") + "-" + Math.random().toString(36).substr(2, 5);
 
-      const docRef = await addDoc(collection(db, "businesses"), {
-        ownerId: user.uid,
-        name: formData.name.trim(),
-        slug,
-        description: formData.description.trim(),
-        category: formData.category,
-        address: {
-          street: formData.street.trim(),
+      const { error } = await supabase
+        .from("businesses")
+        .insert({
+          owner_id: user.id,
+          name: formData.name.trim(),
+          slug,
+          description: formData.description.trim(),
+          category: formData.category,
+          address: formData.street.trim(),
           city: formData.city,
           state: formData.state,
-          zipCode: formData.zipCode.trim(),
-        },
-        phone: formData.phone.trim(),
-        email: formData.email.trim(),
-        ...(formData.website?.trim() ? { website: formData.website.trim() } : {}),
-        images: [],
-        rating: 0,
-        reviewCount: 0,
-        featured: false,
-        verified: false,
-        approved: false,
-        active: true,
-        services: formData.services,
-        hours: {},
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+          zip_code: formData.zipCode.trim(),
+          phone: formData.phone.trim(),
+          email: formData.email.trim(),
+          ...(formData.website?.trim() ? { website: formData.website.trim() } : {}),
+          status: 'pending',
+          tags: formData.services,
+          business_hours: {}
+        });
+
+      if (error) throw error;
 
       toast({
         title: "Business Submitted!",

@@ -8,10 +8,42 @@ export const useAdminBusinesses = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const mapRow = (b: any): Business => ({
+    id: b.id,
+    ownerId: b.owner_id,
+    name: b.name,
+    slug: b.slug,
+    description: b.description || '',
+    category: b.category,
+    subcategory: b.subcategory,
+    address: {
+      street: b.address || '',
+      city: b.city,
+      state: b.state || '',
+      zipCode: b.zip_code || ''
+    },
+    phone: b.phone || '',
+    email: b.email || '',
+    website: b.website,
+    images: [b.cover_image_url, ...(b.gallery_images || [])].filter(Boolean),
+    rating: Number(b.rating_average) || 0,
+    reviewCount: Number(b.rating_count) || 0,
+    featured: b.is_featured,
+    verified: b.is_verified,
+    // status is the single source of truth from the DB
+    approved: b.status === 'approved',
+    active: b.status !== 'suspended' && b.status !== 'rejected',
+    services: b.tags || [],
+    hours: b.business_hours || {},
+    tier: b.membership_tier || 'free',
+    createdAt: new Date(b.created_at),
+    updatedAt: new Date(b.updated_at),
+  });
+
   const fetchBusinesses = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       const { data, error: fetchError } = await supabase
         .from("businesses")
         .select("*")
@@ -20,37 +52,8 @@ export const useAdminBusinesses = () => {
       if (fetchError) throw fetchError;
 
       if (data) {
-        const mappedResults: Business[] = data.map((b: any) => ({
-          id: b.id,
-          ownerId: b.owner_id,
-          name: b.name,
-          slug: b.slug,
-          description: b.description || '',
-          category: b.category,
-          subcategory: b.subcategory,
-          address: {
-            street: b.address || '',
-            city: b.city,
-            state: b.state || '',
-            zipCode: b.zip_code || ''
-          },
-          phone: b.phone || '',
-          email: b.email || '',
-          website: b.website,
-          images: [b.cover_image_url, ...(b.gallery_images || [])].filter(Boolean),
-          rating: Number(b.rating_average) || 0,
-          reviewCount: Number(b.rating_count) || 0,
-          featured: b.is_featured,
-          verified: b.is_verified,
-          approved: b.status === 'approved',
-          active: b.status !== 'suspended' && b.status !== 'rejected',
-          services: b.tags || [],
-          hours: b.business_hours || {},
-          createdAt: new Date(b.created_at),
-          updatedAt: new Date(b.updated_at)
-        }));
-
-        setPendingBusinesses(mappedResults.filter(b => !b.approved && b.active)); // pending status mapping
+        const mappedResults: Business[] = data.map(mapRow);
+        setPendingBusinesses(mappedResults.filter(b => !b.approved && b.active));
         setAllBusinesses(mappedResults);
       }
       setError(null);
@@ -63,63 +66,112 @@ export const useAdminBusinesses = () => {
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-    if (mounted) fetchBusinesses();
-    return () => { mounted = false; };
+    fetchBusinesses();
   }, [fetchBusinesses]);
 
-  const approveBusiness = async (businessId: string) => {
-    const { error } = await supabase
+  /**
+   * Approve a business listing.
+   * Writes to DB, verifies the returned status, then refetches to sync UI.
+   */
+  const approveBusiness = async (businessId: string): Promise<void> => {
+    const { data, error: updateError } = await supabase
       .from("businesses")
       .update({ status: 'approved' })
-      .eq("id", businessId);
-      
-    if (error) throw error;
-    
-    setPendingBusinesses((prev) => prev.filter((b) => b.id !== businessId));
-    setAllBusinesses((prev) =>
-      prev.map((b) => (b.id === businessId ? { ...b, approved: true, active: true } : b))
-    );
+      .eq("id", businessId)
+      .select("id, status")
+      .single();
+
+    if (updateError) {
+      console.error("approveBusiness DB error:", updateError);
+      throw new Error(`Failed to approve business. ${updateError.message}`);
+    }
+
+    if (!data || data.status !== 'approved') {
+      console.error("approveBusiness: DB did not confirm status change", data);
+      throw new Error("Database did not confirm the approval. Please try again.");
+    }
+
+    // Refetch from DB — UI always reflects real database state
+    await fetchBusinesses();
   };
 
-  const rejectBusiness = async (businessId: string) => {
-    // Or delete, but setting to rejected is safer
-    const { error } = await supabase
+  /**
+   * Reject a business listing (sets status to 'rejected').
+   * Writes to DB, verifies, then refetches.
+   */
+  const rejectBusiness = async (businessId: string): Promise<void> => {
+    const { data, error: updateError } = await supabase
       .from("businesses")
       .update({ status: 'rejected' })
-      .eq("id", businessId);
-      
-    if (error) throw error;
-    
-    setPendingBusinesses((prev) => prev.filter((b) => b.id !== businessId));
-    setAllBusinesses((prev) => prev.map((b) => (b.id === businessId ? { ...b, approved: false, active: false } : b)));
+      .eq("id", businessId)
+      .select("id, status")
+      .single();
+
+    if (updateError) {
+      console.error("rejectBusiness DB error:", updateError);
+      throw new Error(`Failed to reject business. ${updateError.message}`);
+    }
+
+    if (!data || data.status !== 'rejected') {
+      console.error("rejectBusiness: DB did not confirm status change", data);
+      throw new Error("Database did not confirm the rejection. Please try again.");
+    }
+
+    await fetchBusinesses();
   };
 
-  const toggleActive = async (businessId: string, active: boolean) => {
-    const status = active ? 'approved' : 'suspended';
-    const { error } = await supabase
+  /**
+   * Suspend (active=false) or Restore (active=true) a business.
+   * Writes to DB, verifies, then refetches.
+   */
+  const toggleActive = async (businessId: string, active: boolean): Promise<void> => {
+    const newStatus = active ? 'approved' : 'suspended';
+
+    const { data, error: updateError } = await supabase
       .from("businesses")
-      .update({ status })
-      .eq("id", businessId);
-      
-    if (error) throw error;
-    
-    setAllBusinesses((prev) =>
-      prev.map((b) => (b.id === businessId ? { ...b, active } : b))
-    );
+      .update({ status: newStatus })
+      .eq("id", businessId)
+      .select("id, status")
+      .single();
+
+    if (updateError) {
+      console.error("toggleActive DB error:", updateError);
+      const action = active ? "restore" : "suspend";
+      throw new Error(`Failed to ${action} business. ${updateError.message}`);
+    }
+
+    if (!data || data.status !== newStatus) {
+      console.error("toggleActive: DB did not confirm status change", data);
+      const action = active ? "restore" : "suspension";
+      throw new Error(`Database did not confirm the ${action}. Please try again.`);
+    }
+
+    await fetchBusinesses();
   };
 
-  const toggleFeatured = async (businessId: string, featured: boolean) => {
-    const { error } = await supabase
+  /**
+   * Toggle the featured flag on a business.
+   * Writes to DB, verifies, then refetches.
+   */
+  const toggleFeatured = async (businessId: string, featured: boolean): Promise<void> => {
+    const { data, error: updateError } = await supabase
       .from("businesses")
       .update({ is_featured: featured })
-      .eq("id", businessId);
-      
-    if (error) throw error;
-    
-    setAllBusinesses((prev) =>
-      prev.map((b) => (b.id === businessId ? { ...b, featured } : b))
-    );
+      .eq("id", businessId)
+      .select("id, is_featured")
+      .single();
+
+    if (updateError) {
+      console.error("toggleFeatured DB error:", updateError);
+      throw new Error(`Failed to update featured status. ${updateError.message}`);
+    }
+
+    if (!data || data.is_featured !== featured) {
+      console.error("toggleFeatured: DB did not confirm change", data);
+      throw new Error("Database did not confirm the featured status update. Please try again.");
+    }
+
+    await fetchBusinesses();
   };
 
   return {
@@ -147,7 +199,7 @@ export const useAdminStats = () => {
 
   useEffect(() => {
     let mounted = true;
-    
+
     const fetchStats = async () => {
       try {
         setLoading(true);
@@ -155,29 +207,29 @@ export const useAdminStats = () => {
         const { count: totalBusinesses } = await supabase
           .from("businesses")
           .select("*", { count: 'exact', head: true });
-          
-        // Get pending businesses
+
+        // Get pending businesses — real count from DB
         const { count: pendingListings } = await supabase
           .from("businesses")
           .select("*", { count: 'exact', head: true })
           .eq('status', 'pending');
-          
+
         // Get leads this month
         const startOfMonth = new Date();
         startOfMonth.setDate(1);
         startOfMonth.setHours(0, 0, 0, 0);
-        
+
         const { count: leadsThisMonth } = await supabase
           .from("leads")
           .select("*", { count: 'exact', head: true })
           .gte('created_at', startOfMonth.toISOString());
-          
+
         if (mounted) {
           setStats({
             totalBusinesses: totalBusinesses || 0,
             pendingListings: pendingListings || 0,
             activeSubscriptions: 15, // Mock data for now
-            totalRevenue: 4500, // Mock data for now
+            totalRevenue: 4500,      // Mock data for now
             leadsThisMonth: leadsThisMonth || 0,
           });
         }

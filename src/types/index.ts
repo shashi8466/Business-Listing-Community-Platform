@@ -47,6 +47,7 @@ export interface Business {
     [day: string]: { open: string; close: string } | 'closed';
   };
   views?: number;
+  tier?: string; // maps from membership_tier in DB
   createdAt: Date;
   updatedAt: Date;
 }

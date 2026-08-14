@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
-  Building2, Search, Filter, Check, X, Eye, MoreHorizontal,
-  Star, AlertTriangle, Play
+  Building2, Search, Check, X, Eye, MoreHorizontal,
+  Star, AlertTriangle, Play, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,116 +18,105 @@ const AdminListingsPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
-  
+
   const statusFilter = searchParams.get('status') || undefined;
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const { 
-    allBusinesses, 
-    loading, 
-    approveBusiness, 
-    rejectBusiness, 
+  // Track which row is currently performing an action (to prevent double-clicks)
+  const [actioningId, setActioningId] = useState<string | null>(null);
+
+  const {
+    allBusinesses,
+    loading,
+    approveBusiness,
+    rejectBusiness,
     toggleActive,
-    toggleFeatured
+    toggleFeatured,
   } = useAdminBusinesses();
 
-  // Derive status based on Firebase fields
+  // Derive status from DB-mapped fields — single source of truth
   const businessesWithStatus = allBusinesses.map(b => {
-    let status = 'pending';
+    let status: 'pending' | 'approved' | 'suspended' | 'rejected' = 'pending';
     if (b.approved) {
       status = b.active !== false ? 'approved' : 'suspended';
+    } else if (!b.active) {
+      status = 'suspended';
     }
     return { ...b, status };
   });
 
   const filteredBusinesses = businessesWithStatus.filter((b) => {
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       (b.name && b.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (b.address?.city && b.address.city.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+      (b.address?.city && b.address.city.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (b.category && b.category.toLowerCase().includes(searchQuery.toLowerCase()));
+
     const matchesStatus = !statusFilter || b.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
-  const handleApprove = async (businessId: string) => {
+  const runAction = async (
+    businessId: string,
+    action: () => Promise<void>,
+    successTitle: string,
+    successDesc: string,
+  ) => {
+    if (actioningId) return; // Block if another action is in-progress
+    setActioningId(businessId);
     try {
-      await approveBusiness(businessId);
-      toast({
-        title: "Status Updated",
-        description: `Business approved`,
-      });
+      await action();
+      toast({ title: successTitle, description: successDesc });
     } catch (error: any) {
+      console.error("Admin listing action failed:", error);
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Action Failed",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setActioningId(null);
     }
   };
 
-  const handleReject = async (businessId: string) => {
-    try {
-      await rejectBusiness(businessId);
-      toast({
-        title: "Business Rejected",
-        description: `The business listing was rejected and removed.`,
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
+  const handleApprove = (businessId: string) =>
+    runAction(
+      businessId,
+      () => approveBusiness(businessId),
+      "Business Approved",
+      "The listing has been approved and is now visible to the public.",
+    );
 
-  const handleSuspend = async (businessId: string) => {
-    try {
-      await toggleActive(businessId, false);
-      toast({
-        title: "Business Suspended",
-        description: `The business has been suspended.`,
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-  
-  const handleActivate = async (businessId: string) => {
-    try {
-      await toggleActive(businessId, true);
-      toast({
-        title: "Business Activated",
-        description: `The business has been reactivated.`,
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
+  const handleReject = (businessId: string) =>
+    runAction(
+      businessId,
+      () => rejectBusiness(businessId),
+      "Business Rejected",
+      "The business listing has been rejected.",
+    );
 
-  const handleFeatureToggle = async (businessId: string, isFeatured: boolean) => {
-    try {
-      await toggleFeatured(businessId, !isFeatured);
-      toast({
-        title: isFeatured ? "Removed from Featured" : "Added to Featured",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
+  const handleSuspend = (businessId: string) =>
+    runAction(
+      businessId,
+      () => toggleActive(businessId, false),
+      "Business Suspended",
+      "The business has been suspended and is hidden from the public.",
+    );
+
+  const handleActivate = (businessId: string) =>
+    runAction(
+      businessId,
+      () => toggleActive(businessId, true),
+      "Business Restored",
+      "The business has been reactivated.",
+    );
+
+  const handleFeatureToggle = (businessId: string, isFeatured: boolean) =>
+    runAction(
+      businessId,
+      () => toggleFeatured(businessId, !isFeatured),
+      isFeatured ? "Removed from Featured" : "Added to Featured",
+      isFeatured ? "This listing will no longer be featured." : "This listing is now featured.",
+    );
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -137,11 +126,14 @@ const AdminListingsPage = () => {
         return <Badge className="bg-secondary hover:bg-secondary/90"><AlertTriangle className="h-3 w-3 mr-1" />Pending</Badge>;
       case 'suspended':
         return <Badge variant="destructive"><AlertTriangle className="h-3 w-3 mr-1" />Suspended</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive"><X className="h-3 w-3 mr-1" />Rejected</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
+  // Status counts always derived from DB-backed data (not optimistic state)
   const statusCounts = {
     all: businessesWithStatus.length,
     pending: businessesWithStatus.filter(b => b.status === 'pending').length,
@@ -168,7 +160,7 @@ const AdminListingsPage = () => {
         </div>
       </div>
 
-      {/* Status Tabs */}
+      {/* Status Tabs — counts derived from real DB data */}
       <div className="flex flex-wrap gap-2 mb-6">
         <Button
           variant={!statusFilter ? "default" : "outline"}
@@ -248,88 +240,99 @@ const AdminListingsPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredBusinesses.map((business) => (
-                  <TableRow key={business.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-muted rounded flex items-center justify-center">
-                          <Building2 className="h-5 w-5 text-muted-foreground" />
+                {filteredBusinesses.map((business) => {
+                  const isActioning = actioningId === business.id;
+                  return (
+                    <TableRow key={business.id} className={isActioning ? "opacity-60 pointer-events-none" : ""}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 bg-muted rounded flex items-center justify-center">
+                            <Building2 className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground flex items-center gap-2">
+                              {business.name}
+                              {business.featured && (
+                                <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                              )}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate max-w-[150px]">
+                              {business.id}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground flex items-center gap-2">
-                            {business.name}
-                            {business.featured && (
-                              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                            )}
-                          </p>
-                          <p className="text-xs text-muted-foreground truncate max-w-[150px]">
-                            {business.id}
-                          </p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="capitalize text-muted-foreground">
-                      {business.category}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {business.address?.city ? `${business.address.city}${business.address.state ? `, ${business.address.state}` : ''}` : 'No location'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{business.tier || 'Free'}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(business.status)}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {business.createdAt && business.createdAt instanceof Date && !isNaN(business.createdAt.getTime()) 
-                        ? business.createdAt.toLocaleDateString() 
-                        : 'Unknown Date'}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => navigate(`/business/${business.id}`)}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Listing
-                          </DropdownMenuItem>
-                          {business.status === 'pending' && (
-                            <>
-                              <DropdownMenuItem onClick={() => handleApprove(business.id)}>
-                                <Check className="h-4 w-4 mr-2 text-green-500" />
-                                Approve
+                      </TableCell>
+                      <TableCell className="capitalize text-muted-foreground">
+                        {business.category}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {business.address?.city
+                          ? `${business.address.city}${business.address.state ? `, ${business.address.state}` : ''}`
+                          : 'No location'}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{business.tier || 'Free'}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(business.status)}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {business.createdAt && business.createdAt instanceof Date && !isNaN(business.createdAt.getTime())
+                          ? business.createdAt.toLocaleDateString()
+                          : 'Unknown Date'}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {isActioning ? (
+                          <div className="flex justify-end">
+                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                          </div>
+                        ) : (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => navigate(`/business/${business.id}`)}>
+                                <Eye className="h-4 w-4 mr-2" />
+                                View Listing
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleReject(business.id)}>
-                                <X className="h-4 w-4 mr-2 text-destructive" />
-                                Reject
+                              {business.status === 'pending' && (
+                                <>
+                                  <DropdownMenuItem onClick={() => handleApprove(business.id)}>
+                                    <Check className="h-4 w-4 mr-2 text-green-500" />
+                                    Approve
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleReject(business.id)}>
+                                    <X className="h-4 w-4 mr-2 text-destructive" />
+                                    Reject
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                              {business.status === 'approved' && (
+                                <DropdownMenuItem onClick={() => handleSuspend(business.id)}>
+                                  <AlertTriangle className="h-4 w-4 mr-2" />
+                                  Suspend
+                                </DropdownMenuItem>
+                              )}
+                              {(business.status === 'suspended' || business.status === 'rejected') && (
+                                <DropdownMenuItem onClick={() => handleActivate(business.id)}>
+                                  <Play className="h-4 w-4 mr-2" />
+                                  Reactivate
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem onClick={() => handleFeatureToggle(business.id, business.featured || false)}>
+                                <Star className="h-4 w-4 mr-2" />
+                                {business.featured ? 'Remove Featured' : 'Make Featured'}
                               </DropdownMenuItem>
-                            </>
-                          )}
-                          {business.status === 'approved' && (
-                            <DropdownMenuItem onClick={() => handleSuspend(business.id)}>
-                              <AlertTriangle className="h-4 w-4 mr-2" />
-                              Suspend
-                            </DropdownMenuItem>
-                          )}
-                          {business.status === 'suspended' && (
-                            <DropdownMenuItem onClick={() => handleActivate(business.id)}>
-                              <Play className="h-4 w-4 mr-2" />
-                              Reactivate
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem onClick={() => handleFeatureToggle(business.id, business.featured || false)}>
-                            <Star className="h-4 w-4 mr-2" />
-                            {business.featured ? 'Remove Featured' : 'Make Featured'}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}

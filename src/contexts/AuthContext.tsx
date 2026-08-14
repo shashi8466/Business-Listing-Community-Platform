@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const fetchProfile = async (sessionUser: SupabaseUser) => {
       try {
         // Fetch role and profile concurrently
-        const [roleResult, profileResult] = await Promise.all([
+        const [roleResult, profileResult, favsResult] = await Promise.all([
           supabase
             .from("user_roles")
             .select("role")
@@ -52,11 +52,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             .from("user_profiles")
             .select("display_name, phone, city, state, zip")
             .eq("id", sessionUser.id)
-            .maybeSingle()
+            .maybeSingle(),
+          supabase
+            .from("user_favorites")
+            .select("business_id")
+            .eq("user_id", sessionUser.id)
         ]);
 
         const roleData = roleResult.data;
         const profileData = profileResult.data;
+        const favsData = favsResult.data || [];
 
         // Strict role resolution
         let resolvedRole: UserRole = "user"; // Default safety
@@ -85,7 +90,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             zip: profileData?.zip || "",
             createdAt: new Date(sessionUser.created_at),
             role: resolvedRole,
-            favorites: [] // Favorites will be loaded by a separate hook
+            favorites: favsData.map((f: any) => f.business_id)
           });
         }
       } catch (error) {

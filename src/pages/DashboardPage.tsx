@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { BusinessReviewsList } from "@/components/BusinessReviewsList";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -437,6 +438,10 @@ const DashboardPage = () => {
                         </Button>
                       </div>
                     </div>
+                    
+                    {userProfile?.role === 'business' && (
+                      <BusinessReviewsList businessIds={myBusinesses.map(b => b.id)} />
+                    )}
                   </div>
                 )}
 
@@ -779,6 +784,10 @@ const DashboardPage = () => {
                           </div>
                         ))}
                       </div>
+                    )}
+
+                    {userProfile?.role === 'business' && (
+                      <BusinessReviewsList businessIds={myBusinesses.map(b => b.id)} />
                     )}
                   </div>
                 )}

@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminLayout } from "@/components/AdminLayout";
+import { PlatformSettingsProvider } from "@/contexts/PlatformSettingsContext";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import SearchPage from "./pages/SearchPage";
@@ -72,8 +73,9 @@ const App = () => (
   <AppErrorBoundary>
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <TooltipProvider>
+        <PlatformSettingsProvider>
+          <AuthProvider>
+            <TooltipProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -104,6 +106,7 @@ const App = () => (
                 <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout /></ProtectedRoute>}>
                   <Route index element={<Navigate to="/admin/dashboard" replace />} />
                   <Route path="dashboard" element={<AdminDashboardPage />} />
+                  <Route path="profile" element={<ProfilePage />} />
                   <Route path="users" element={<AdminUsersPage />} />
                   <Route path="categories" element={<AdminCategoriesPage />} />
                   <Route path="listings" element={<AdminListingsPage />} />
@@ -145,8 +148,9 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
-          </TooltipProvider>
-        </AuthProvider>
+            </TooltipProvider>
+          </AuthProvider>
+        </PlatformSettingsProvider>
       </QueryClientProvider>
     </HelmetProvider>
   </AppErrorBoundary>

@@ -109,8 +109,8 @@ const CreateCommunityPage = () => {
   return (
     <>
       <Helmet>
-        <title>Create Community | d4desi</title>
-        <meta name="description" content="Create a new Desi community on d4desi" />
+        <title>Create Community | BusinessHub</title>
+        <meta name="description" content="Create a new Desi community on BusinessHub" />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

@@ -59,7 +59,7 @@ const AdminLeadsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Lead Management | Admin | d4desi</title>
+        <title>Lead Management | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

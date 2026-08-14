@@ -1,73 +1,58 @@
-# Welcome to your Lovable project
+# BusinessHub
 
-## Project info
+BusinessHub is a comprehensive directory platform connecting communities with local businesses, events, and essential services.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- **Business Directory**: Browse and list local businesses.
+- **Community Events**: Discover and host local events.
+- **Reviews & Ratings**: Share your experiences and build trust.
+- **User Dashboard**: Manage your listings, favorites, and reviews.
+- **Admin Dashboard**: Comprehensive tools for moderating listings, managing users, and overseeing platform growth.
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- Frontend: React, Vite, Tailwind CSS, shadcn/ui
+- Backend: Supabase (PostgreSQL, Auth, Storage)
+- Hosting: Firebase Hosting
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js & npm
+- A Supabase account and project
+- A Firebase project
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/shashi8466/BusinessHub.git
+   cd BusinessHub
+   ```
 
-Follow these steps:
+2. Install dependencies:
+   ```sh
+   npm install
+   ```
 
+3. Set up environment variables in a `.env` file based on your Supabase credentials:
+   ```
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. Start the development server:
+   ```sh
+   npm run dev
+   ```
+
+## Deployment
+
+BusinessHub is configured to deploy to Firebase Hosting. 
+Build the project for production and deploy:
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+npm run build
+npx firebase-tools deploy
 ```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)

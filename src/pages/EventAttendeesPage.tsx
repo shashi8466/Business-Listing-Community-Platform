@@ -164,7 +164,7 @@ const EventAttendeesPage = () => {
   return (
     <>
       <Helmet>
-        <title>Attendees: {event?.title} | d4desi</title>
+        <title>Attendees: {event?.title} | BusinessHub</title>
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

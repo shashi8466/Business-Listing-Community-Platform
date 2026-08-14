@@ -75,7 +75,7 @@ const AdminDashboardPage = () => {
   return (
     <>
       <Helmet>
-        <title>Admin Dashboard | d4desi</title>
+        <title>Admin Dashboard | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

@@ -20,7 +20,7 @@ const BusinessCTA = forwardRef<HTMLElement>((props, ref) => {
               For Business Owners
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Grow Your Business with d4desi
+              Grow Your Business with BusinessHub
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
               Join thousands of Desi business owners who are already connecting with customers through our platform.

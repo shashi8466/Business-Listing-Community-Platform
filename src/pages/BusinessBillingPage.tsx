@@ -67,7 +67,7 @@ const BusinessBillingPage = () => {
   return (
     <>
       <Helmet>
-        <title>Billing & Invoices | d4desi</title>
+        <title>Billing & Invoices | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

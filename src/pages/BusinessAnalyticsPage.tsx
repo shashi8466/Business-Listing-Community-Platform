@@ -127,7 +127,7 @@ const BusinessAnalyticsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Business Analytics | d4desi</title>
+        <title>Business Analytics | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

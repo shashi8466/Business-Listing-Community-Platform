@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const STORAGE_KEY = "d4desi_recent_searches";
+const STORAGE_KEY = "BusinessHub_recent_searches";
 const MAX_RECENT_SEARCHES = 5;
 
 interface RecentSearch {

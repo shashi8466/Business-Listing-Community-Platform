@@ -277,7 +277,7 @@ const AdminEventsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Events & Tickets | Admin | d4desi</title>
+        <title>Events & Tickets | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

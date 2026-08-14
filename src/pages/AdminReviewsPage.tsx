@@ -6,7 +6,7 @@ const AdminReviewsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Reviews Moderation | Admin | d4desi</title>
+        <title>Reviews Moderation | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

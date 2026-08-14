@@ -1,4 +1,4 @@
-// Types for d4desi platform
+// Types for BusinessHub platform
 
 export type UserRole = 'user' | 'business' | 'admin';
 

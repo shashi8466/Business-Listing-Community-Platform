@@ -50,7 +50,7 @@ const AdminAnalyticsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Analytics | Admin | d4desi</title>
+        <title>Analytics | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

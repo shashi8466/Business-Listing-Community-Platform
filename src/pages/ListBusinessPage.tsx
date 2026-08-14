@@ -164,8 +164,8 @@ const ListBusinessPage = () => {
   return (
     <>
       <Helmet>
-        <title>List Your Business - d4desi</title>
-        <meta name="description" content="Add your Desi business to d4desi and reach thousands of customers" />
+        <title>List Your Business - BusinessHub</title>
+        <meta name="description" content="Add your Desi business to BusinessHub and reach thousands of customers" />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

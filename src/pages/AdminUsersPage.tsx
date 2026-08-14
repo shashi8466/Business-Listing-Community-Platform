@@ -85,7 +85,7 @@ const AdminUsersPage = () => {
   return (
     <>
       <Helmet>
-        <title>Manage Users | Admin | d4desi</title>
+        <title>Manage Users | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

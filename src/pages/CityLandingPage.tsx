@@ -65,7 +65,7 @@ const CityLandingPage = () => {
     <>
       <Helmet>
         <title>
-          Desi Businesses in {matchedCity.city}, {matchedCity.state} | d4desi
+          Desi Businesses in {matchedCity.city}, {matchedCity.state} | BusinessHub
         </title>
         <meta
           name="description"
@@ -73,7 +73,7 @@ const CityLandingPage = () => {
         />
         <link
           rel="canonical"
-          href={`https://d4desi.com/${matchedCity.city.toLowerCase().replace(/\s+/g, "-")}`}
+          href={`https://BusinessHub.com/${matchedCity.city.toLowerCase().replace(/\s+/g, "-")}`}
         />
         <script type="application/ld+json">
           {JSON.stringify({
@@ -81,7 +81,7 @@ const CityLandingPage = () => {
             "@type": "CollectionPage",
             name: `Desi Businesses in ${matchedCity.city}, ${matchedCity.state}`,
             description: `Directory of Desi businesses and services in ${matchedCity.city}, ${matchedCity.state}`,
-            url: `https://d4desi.com/${matchedCity.city.toLowerCase().replace(/\s+/g, "-")}`,
+            url: `https://BusinessHub.com/${matchedCity.city.toLowerCase().replace(/\s+/g, "-")}`,
           })}
         </script>
       </Helmet>

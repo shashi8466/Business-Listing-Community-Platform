@@ -33,7 +33,7 @@ const CityPage = () => {
   return (
     <>
       <Helmet>
-        <title>Desi Businesses in {city.city}, {city.state} | d4desi</title>
+        <title>Desi Businesses in {city.city}, {city.state} | BusinessHub</title>
         <meta name="description" content={`Find trusted Desi businesses and services in ${city.city}, ${city.state}. Browse restaurants, tutors, real estate, and more.`} />
       </Helmet>
 

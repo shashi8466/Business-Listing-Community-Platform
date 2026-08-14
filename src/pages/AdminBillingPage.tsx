@@ -34,7 +34,7 @@ const AdminBillingPage = () => {
   return (
     <>
       <Helmet>
-        <title>Billing & Invoices | Admin | d4desi</title>
+        <title>Billing & Invoices | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

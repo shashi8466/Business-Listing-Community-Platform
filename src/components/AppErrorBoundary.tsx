@@ -20,7 +20,7 @@ export class AppErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Keep a clear console error for debugging in Lovable preview
+    // Keep a clear console error for debugging
     // eslint-disable-next-line no-console
     console.error("App crashed:", error, errorInfo);
     this.setState({ error, errorInfo });

@@ -80,7 +80,7 @@ const CheckoutPage = () => {
   return (
     <>
       <Helmet>
-        <title>Checkout - Complete Your Subscription | d4desi</title>
+        <title>Checkout - Complete Your Subscription | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

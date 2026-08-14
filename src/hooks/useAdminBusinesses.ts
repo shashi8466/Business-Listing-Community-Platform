@@ -69,12 +69,10 @@ export const useAdminBusinesses = () => {
   }, [fetchBusinesses]);
 
   const approveBusiness = async (businessId: string) => {
-    const { error, data } = await supabase
+    const { error } = await supabase
       .from("businesses")
       .update({ status: 'approved' })
-      .eq("id", businessId)
-      .select()
-      .single();
+      .eq("id", businessId);
       
     if (error) throw error;
     
@@ -89,9 +87,7 @@ export const useAdminBusinesses = () => {
     const { error } = await supabase
       .from("businesses")
       .update({ status: 'rejected' })
-      .eq("id", businessId)
-      .select()
-      .single();
+      .eq("id", businessId);
       
     if (error) throw error;
     
@@ -104,9 +100,7 @@ export const useAdminBusinesses = () => {
     const { error } = await supabase
       .from("businesses")
       .update({ status })
-      .eq("id", businessId)
-      .select()
-      .single();
+      .eq("id", businessId);
       
     if (error) throw error;
     
@@ -119,9 +113,7 @@ export const useAdminBusinesses = () => {
     const { error } = await supabase
       .from("businesses")
       .update({ is_featured: featured })
-      .eq("id", businessId)
-      .select()
-      .single();
+      .eq("id", businessId);
       
     if (error) throw error;
     

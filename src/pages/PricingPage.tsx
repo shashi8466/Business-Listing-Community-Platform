@@ -73,12 +73,12 @@ const PricingPage = () => {
   return (
     <>
       <Helmet>
-        <title>Pricing Plans - Choose Your Business Membership | d4desi</title>
+        <title>Pricing Plans - Choose Your Business Membership | BusinessHub</title>
         <meta
           name="description"
           content="Choose the perfect membership plan for your business. From free listings to featured placements, find the right plan to grow your business."
         />
-        <link rel="canonical" href="https://d4desi.com/pricing" />
+        <link rel="canonical" href="https://BusinessHub.com/pricing" />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">
@@ -295,7 +295,7 @@ const PricingPage = () => {
                 Ready to Grow Your Business?
               </h2>
               <p className="text-lg opacity-90 mb-8 max-w-xl mx-auto">
-                Join thousands of businesses already growing with d4desi.
+                Join thousands of businesses already growing with BusinessHub.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Button size="lg" variant="secondary" asChild>

@@ -126,8 +126,8 @@ const BusinessDetailPage = () => {
     return (
       <>
         <Helmet>
-          <title>Loading Business - d4desi</title>
-          <meta name="description" content="Loading business details on d4desi" />
+          <title>Loading Business - BusinessHub</title>
+          <meta name="description" content="Loading business details on BusinessHub" />
         </Helmet>
 
         <div className="min-h-screen flex flex-col bg-background">
@@ -145,8 +145,8 @@ const BusinessDetailPage = () => {
     return (
       <>
         <Helmet>
-          <title>Business Not Found - d4desi</title>
-          <meta name="description" content="Business listing not found on d4desi" />
+          <title>Business Not Found - BusinessHub</title>
+          <meta name="description" content="Business listing not found on BusinessHub" />
         </Helmet>
 
         <div className="min-h-screen flex flex-col bg-background">
@@ -235,7 +235,7 @@ const BusinessDetailPage = () => {
   return (
     <>
       <Helmet>
-        <title>{business.name} - d4desi</title>
+        <title>{business.name} - BusinessHub</title>
         <meta name="description" content={business.description.substring(0, 160)} />
         <script type="application/ld+json">
           {JSON.stringify({

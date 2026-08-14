@@ -29,11 +29,13 @@ import {
   Ticket,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePlatformSettings } from "@/contexts/PlatformSettingsContext";
 import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, userProfile, signOut } = useAuth();
+  const { settings } = usePlatformSettings();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -64,12 +66,17 @@ const Header = () => {
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl md:text-3xl font-bold">
-              <span className="text-primary">d4</span>
-              <span className="text-secondary">desi</span>
-            </span>
+            <img 
+              src={settings?.branding?.logoUrl || "/logo.png"} 
+              alt={`${settings?.branding?.applicationName || 'BusinessHub'} Logo`} 
+              className="w-auto"
+              style={{
+                height: settings?.branding?.logoSize ? `${settings.branding.logoSize}px` : '80px', // Default increased size (h-10)
+                border: settings?.branding?.logoBorder ? '5px solid var(--border)' : 'none',
+                borderRadius: '5px'
+              }}
+            />
           </Link>
 
           {/* Desktop Navigation */}

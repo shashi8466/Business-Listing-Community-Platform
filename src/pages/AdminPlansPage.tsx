@@ -6,7 +6,7 @@ const AdminPlansPage = () => {
   return (
     <>
       <Helmet>
-        <title>Membership Plans | Admin | d4desi</title>
+        <title>Membership Plans | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

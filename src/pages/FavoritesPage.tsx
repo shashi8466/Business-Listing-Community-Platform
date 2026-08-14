@@ -38,8 +38,8 @@ const FavoritesPage = () => {
   return (
     <>
       <Helmet>
-        <title>Saved Listings - d4desi</title>
-        <meta name="description" content="Your saved businesses and services on d4desi" />
+        <title>Saved Listings - BusinessHub</title>
+        <meta name="description" content="Your saved businesses and services on BusinessHub" />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

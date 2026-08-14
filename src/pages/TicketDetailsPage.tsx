@@ -83,7 +83,7 @@ const TicketDetailsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Ticket: {ticket.event?.title} | d4desi</title>
+        <title>Ticket: {ticket.event?.title} | BusinessHub</title>
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

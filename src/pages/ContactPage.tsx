@@ -45,8 +45,8 @@ const ContactPage = () => {
   return (
     <>
       <Helmet>
-        <title>Contact Us - d4desi</title>
-        <meta name="description" content="Get in touch with the d4desi team. We're here to help with questions, feedback, or support." />
+        <title>Contact Us - BusinessHub</title>
+        <meta name="description" content="Get in touch with the BusinessHub team. We're here to help with questions, feedback, or support." />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">
@@ -82,8 +82,8 @@ const ContactPage = () => {
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">Email</h3>
-                        <a href="mailto:support@d4desi.com" className="text-muted-foreground hover:text-primary">
-                          support@d4desi.com
+                        <a href="mailto:support@BusinessHub.com" className="text-muted-foreground hover:text-primary">
+                          support@BusinessHub.com
                         </a>
                       </div>
                     </div>
@@ -94,8 +94,8 @@ const ContactPage = () => {
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">Phone</h3>
-                        <a href="tel:1-800-D4-DESI" className="text-muted-foreground hover:text-primary">
-                          1-800-D4-DESI
+                        <a href="tel:1-800-BusinessHub" className="text-muted-foreground hover:text-primary">
+                          1-800-BusinessHub
                         </a>
                       </div>
                     </div>

@@ -19,12 +19,12 @@ const SponsoredPage = () => {
   return (
     <>
       <Helmet>
-        <title>Sponsored Listings - Premium Business Promotion | d4desi</title>
+        <title>Sponsored Listings - Premium Business Promotion | BusinessHub</title>
         <meta
           name="description"
-          content="Premium sponsored listings for maximum visibility. Get priority placement and reach more customers with d4desi's sponsored business program."
+          content="Premium sponsored listings for maximum visibility. Get priority placement and reach more customers with BusinessHub's sponsored business program."
         />
-        <link rel="canonical" href="https://d4desi.com/sponsored" />
+        <link rel="canonical" href="https://BusinessHub.com/sponsored" />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

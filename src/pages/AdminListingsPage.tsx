@@ -152,7 +152,7 @@ const AdminListingsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Manage Listings | Admin | d4desi</title>
+        <title>Manage Listings | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

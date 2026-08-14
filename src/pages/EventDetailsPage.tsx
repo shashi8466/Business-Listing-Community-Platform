@@ -268,7 +268,7 @@ const EventDetailsPage = () => {
   return (
     <>
       <Helmet>
-        <title>{event.title} | d4desi Events</title>
+        <title>{event.title} | BusinessHub Events</title>
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

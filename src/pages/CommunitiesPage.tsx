@@ -20,12 +20,12 @@ const CommunitiesPage = ({ hideLayout = false }: { hideLayout?: boolean }) => {
   return (
     <>
       <Helmet>
-        <title>Desi Communities - Connect with Your Community | d4desi</title>
+        <title>Desi Communities - Connect with Your Community | BusinessHub</title>
         <meta
           name="description"
           content="Join Desi communities across the United States. Connect with people in your city or by interests like students, professionals, parents, and more."
         />
-        <link rel="canonical" href="https://d4desi.com/communities" />
+        <link rel="canonical" href="https://BusinessHub.com/communities" />
       </Helmet>
 
       <div className={hideLayout ? "" : "min-h-screen flex flex-col bg-background"}>

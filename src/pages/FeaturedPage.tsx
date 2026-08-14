@@ -17,12 +17,12 @@ const FeaturedPage = () => {
   return (
     <>
       <Helmet>
-        <title>Featured Businesses - Top Rated Desi Services | d4desi</title>
+        <title>Featured Businesses - Top Rated Desi Services | BusinessHub</title>
         <meta
           name="description"
           content="Discover our handpicked selection of top-rated Desi businesses and services across the United States. Featured listings represent the best in quality and service."
         />
-        <link rel="canonical" href="https://d4desi.com/featured" />
+        <link rel="canonical" href="https://BusinessHub.com/featured" />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

@@ -52,7 +52,7 @@ const TicketsPage = () => {
   return (
     <>
       <Helmet>
-        <title>My Tickets | d4desi</title>
+        <title>My Tickets | BusinessHub</title>
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

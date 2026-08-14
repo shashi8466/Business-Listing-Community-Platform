@@ -26,7 +26,7 @@ const CityCommunityPage = () => {
   return (
     <>
       <Helmet>
-        <title>{cityInfo?.city || cityName} Desi Communities | d4desi</title>
+        <title>{cityInfo?.city || cityName} Desi Communities | BusinessHub</title>
         <meta
           name="description"
           content={`Find Desi communities in ${cityInfo?.city || cityName}. Connect with locals and join discussions.`}

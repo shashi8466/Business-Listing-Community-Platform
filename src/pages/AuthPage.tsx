@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePlatformSettings } from "@/contexts/PlatformSettingsContext";
 import { supabase } from "@/lib/supabase";
 import { UserRole } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { user, userProfile, signIn, signUp, resetPassword, loading } = useAuth();
+  const { settings } = usePlatformSettings();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -59,7 +61,7 @@ const AuthPage = () => {
         await signUp(email, password, displayName, role);
         toast({
           title: "Account created!",
-          description: "Welcome to d4desi. Your account has been created.",
+          description: "Welcome to BusinessHub. Your account has been created.",
         });
         
         // Navigation will be handled automatically by the useEffect above once userProfile is loaded.
@@ -153,7 +155,7 @@ const AuthPage = () => {
   const getDescription = () => {
     switch (mode) {
       case "login": return "Enter your credentials to access your account";
-      case "signup": return "Join the d4desi community today";
+      case "signup": return "Join the BusinessHub community today";
       case "forgot-password": return "Enter your email and we'll send you a reset link";
       case "phone-login": return "Enter your phone number to receive an OTP";
       case "verify-otp": return "Enter the 6-digit code sent to your phone";
@@ -164,18 +166,25 @@ const AuthPage = () => {
   return (
     <>
       <Helmet>
-        <title>{mode === "login" ? "Login" : mode === "signup" ? "Sign Up" : "Reset Password"} - d4desi</title>
-        <meta name="description" content="Access your d4desi account" />
+        <title>{mode === "login" ? "Login" : mode === "signup" ? "Sign Up" : "Reset Password"} - {settings?.branding?.applicationName || 'BusinessHub'}</title>
+        <meta name="description" content={`Access your ${settings?.branding?.applicationName || 'BusinessHub'} account`} />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-subtle flex">
         {/* Left Side - Branding */}
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-hero items-center justify-center p-12">
           <div className="text-center text-primary-foreground max-w-lg">
-            <Link to="/" className="inline-block mb-8">
-              <span className="text-4xl font-bold">
-                <span className="text-accent">d4</span>desi
-              </span>
+            <Link to="/" className="inline-block mb-8 bg-white/10 p-2 rounded-xl backdrop-blur-sm">
+              <img 
+                src={settings?.branding?.logoUrl || "/logo.png"} 
+                alt={`${settings?.branding?.applicationName || 'BusinessHub'} Logo`} 
+                className="w-auto brightness-0 invert" 
+                style={{
+                  height: settings?.branding?.logoSize ? `${settings.branding.logoSize}px` : '80px', // Default increased size
+                  border: settings?.branding?.logoBorder ? '5px solid var(--border)' : 'none',
+                  borderRadius: '5px'
+                }}
+              />
             </Link>
             <h1 className="text-3xl font-bold mb-4">
               Connect with the Desi Community
@@ -198,10 +207,16 @@ const AuthPage = () => {
             </Link>
 
             <div className="lg:hidden mb-8">
-              <span className="text-3xl font-bold">
-                <span className="text-primary">d4</span>
-                <span className="text-secondary">desi</span>
-              </span>
+              <img 
+                src={settings?.branding?.logoUrl || "/logo.png"} 
+                alt={`${settings?.branding?.applicationName || 'BusinessHub'} Logo`} 
+                className="w-auto" 
+                style={{
+                  height: settings?.branding?.logoSize ? `${settings.branding.logoSize}px` : '64px', // Default increased size
+                  border: settings?.branding?.logoBorder ? '5px solid var(--border)' : 'none',
+                  borderRadius: '5px'
+                }}
+              />
             </div>
 
             <h2 className="text-2xl font-bold text-foreground mb-2">{getTitle()}</h2>

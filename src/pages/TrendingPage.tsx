@@ -27,12 +27,12 @@ const TrendingPage = () => {
   return (
     <>
       <Helmet>
-        <title>Trending Businesses - Popular Desi Services | d4desi</title>
+        <title>Trending Businesses - Popular Desi Services | BusinessHub</title>
         <meta
           name="description"
           content="Discover trending Desi businesses with the most activity, reviews, and customer engagement. Find what's hot in your community."
         />
-        <link rel="canonical" href="https://d4desi.com/trending" />
+        <link rel="canonical" href="https://BusinessHub.com/trending" />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

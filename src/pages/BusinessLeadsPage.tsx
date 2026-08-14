@@ -77,7 +77,7 @@ const BusinessLeadsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Lead Management | d4desi</title>
+        <title>Lead Management | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

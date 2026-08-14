@@ -6,7 +6,7 @@ const AdminPaymentsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Payments & Revenue | Admin | d4desi</title>
+        <title>Payments & Revenue | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

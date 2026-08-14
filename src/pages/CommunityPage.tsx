@@ -96,10 +96,10 @@ const CommunityPage = () => {
   return (
     <>
       <Helmet>
-        <title>{community.name} - Desi Community | d4desi</title>
+        <title>{community.name} - Desi Community | BusinessHub</title>
         <meta
           name="description"
-          content={community.description || `Join ${community.name} community on d4desi`}
+          content={community.description || `Join ${community.name} community on BusinessHub`}
         />
       </Helmet>
 

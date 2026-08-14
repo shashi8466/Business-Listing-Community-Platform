@@ -176,7 +176,7 @@ const EditBusinessPage = () => {
 
   const handleRemoveImage = async (imageUrl: string) => {
     try {
-      // Try to delete from Lovable Cloud storage
+      // Try to delete from Cloud storage
       if (imageUrl.includes('supabase')) {
         const path = imageUrl.split('/business-images/')[1];
         if (path) {
@@ -242,8 +242,8 @@ const EditBusinessPage = () => {
   return (
     <>
       <Helmet>
-        <title>Edit Business - d4desi</title>
-        <meta name="description" content="Edit your business listing on d4desi" />
+        <title>Edit Business - BusinessHub</title>
+        <meta name="description" content="Edit your business listing on BusinessHub" />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

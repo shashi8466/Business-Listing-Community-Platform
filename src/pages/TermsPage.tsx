@@ -6,8 +6,8 @@ const TermsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Terms of Service - d4desi</title>
-        <meta name="description" content="d4desi Terms of Service - Read our terms and conditions for using the platform." />
+        <title>Terms of Service - BusinessHub</title>
+        <meta name="description" content="BusinessHub Terms of Service - Read our terms and conditions for using the platform." />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">
@@ -22,14 +22,14 @@ const TermsPage = () => {
               <section>
                 <h2 className="text-2xl font-semibold text-foreground mb-4">1. Acceptance of Terms</h2>
                 <p className="text-muted-foreground">
-                  By accessing or using d4desi.com, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
+                  By accessing or using BusinessHub.com, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-2xl font-semibold text-foreground mb-4">2. Use License</h2>
                 <p className="text-muted-foreground mb-4">
-                  Permission is granted to temporarily access the materials on d4desi.com for personal, non-commercial transitory viewing only. This license does not include:
+                  Permission is granted to temporarily access the materials on BusinessHub.com for personal, non-commercial transitory viewing only. This license does not include:
                 </p>
                 <ul className="list-disc pl-6 text-muted-foreground space-y-2">
                   <li>Modifying or copying materials</li>
@@ -64,21 +64,21 @@ const TermsPage = () => {
               <section>
                 <h2 className="text-2xl font-semibold text-foreground mb-4">6. Disclaimer</h2>
                 <p className="text-muted-foreground">
-                  The materials on d4desi.com are provided on an 'as is' basis. d4desi makes no warranties, expressed or implied, and hereby disclaims all other warranties including implied warranties of merchantability or fitness for a particular purpose.
+                  The materials on BusinessHub.com are provided on an 'as is' basis. BusinessHub makes no warranties, expressed or implied, and hereby disclaims all other warranties including implied warranties of merchantability or fitness for a particular purpose.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-2xl font-semibold text-foreground mb-4">7. Limitations</h2>
                 <p className="text-muted-foreground">
-                  In no event shall d4desi or its suppliers be liable for any damages arising out of the use or inability to use the materials on d4desi.com, even if d4desi has been notified of the possibility of such damage.
+                  In no event shall BusinessHub or its suppliers be liable for any damages arising out of the use or inability to use the materials on BusinessHub.com, even if BusinessHub has been notified of the possibility of such damage.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-2xl font-semibold text-foreground mb-4">8. Contact Information</h2>
                 <p className="text-muted-foreground">
-                  Questions about the Terms of Service should be sent to us at legal@d4desi.com.
+                  Questions about the Terms of Service should be sent to us at legal@BusinessHub.com.
                 </p>
               </section>
             </div>

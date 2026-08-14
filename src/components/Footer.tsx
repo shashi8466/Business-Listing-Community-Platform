@@ -2,8 +2,11 @@ import { forwardRef } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 import { CATEGORIES } from "@/types";
+import { usePlatformSettings } from "@/contexts/PlatformSettingsContext";
 
 const Footer = forwardRef<HTMLElement>((props, ref) => {
+  const { settings } = usePlatformSettings();
+  
   const serviceLinks = CATEGORIES.slice(0, 6).map((cat) => ({
     name: cat.name,
     href: `/category/${cat.id}`,
@@ -42,10 +45,16 @@ const Footer = forwardRef<HTMLElement>((props, ref) => {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <span className="text-2xl font-bold">
-                <span className="text-primary">d4</span>
-                <span className="text-sidebar-foreground">desi</span>
-              </span>
+              <img 
+                src={settings?.branding?.logoUrl || "/logo.png"} 
+                alt={`${settings?.branding?.applicationName || 'BusinessHub'} Logo`} 
+                className="w-auto"
+                style={{
+                  height: settings?.branding?.logoSize ? `${settings.branding.logoSize}px` : '80px', // Default increased size
+                  border: settings?.branding?.logoBorder ? '5px solid var(--border)' : 'none',
+                  borderRadius: '5px'
+                }}
+              />
             </Link>
             <p className="text-sidebar-foreground/80 text-sm mb-6">
               Connecting the Desi community across the United States with trusted
@@ -122,14 +131,14 @@ const Footer = forwardRef<HTMLElement>((props, ref) => {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm text-sidebar-foreground/70">
                 <Mail className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <a href="mailto:support@d4desi.com" className="hover:text-primary">
-                  support@d4desi.com
+                <a href="mailto:support@BusinessHub.com" className="hover:text-primary">
+                  support@BusinessHub.com
                 </a>
               </li>
               <li className="flex items-start gap-3 text-sm text-sidebar-foreground/70">
                 <Phone className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <a href="tel:1-800-D4-DESI" className="hover:text-primary">
-                  1-800-D4-DESI
+                <a href="tel:1-800-BusinessHub" className="hover:text-primary">
+                  1-800-BusinessHub
                 </a>
               </li>
               <li className="flex items-start gap-3 text-sm text-sidebar-foreground/70">
@@ -143,7 +152,7 @@ const Footer = forwardRef<HTMLElement>((props, ref) => {
         {/* Bottom */}
         <div className="pt-8 border-t border-sidebar-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-sidebar-foreground/60">
-            © {new Date().getFullYear()} d4desi.com. All rights reserved.
+            © {new Date().getFullYear()} {settings?.branding?.applicationName || 'BusinessHub.com'}. All rights reserved.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             {legalLinks.map((link) => (

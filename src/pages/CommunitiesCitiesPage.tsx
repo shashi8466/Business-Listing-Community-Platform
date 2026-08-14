@@ -12,7 +12,7 @@ const CommunitiesCitiesPage = () => {
   return (
     <>
       <Helmet>
-        <title>Communities by City | d4desi</title>
+        <title>Communities by City | BusinessHub</title>
         <meta
           name="description"
           content="Find Desi communities in your city. Connect with locals across the United States."

@@ -147,7 +147,7 @@ const AdminCategoriesPage = () => {
   return (
     <>
       <Helmet>
-        <title>Categories & Services | Admin | d4desi</title>
+        <title>Categories & Services | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

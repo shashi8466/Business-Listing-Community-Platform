@@ -35,7 +35,7 @@ const AdminMyBusinessesPage = () => {
   return (
     <>
       <Helmet>
-        <title>My Businesses | Admin | d4desi</title>
+        <title>My Businesses | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

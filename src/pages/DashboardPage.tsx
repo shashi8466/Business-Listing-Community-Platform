@@ -194,8 +194,8 @@ const DashboardPage = () => {
   return (
     <>
       <Helmet>
-        <title>My Dashboard - d4desi</title>
-        <meta name="description" content="Manage your d4desi account, saved businesses, and reviews" />
+        <title>My Dashboard - BusinessHub</title>
+        <meta name="description" content="Manage your BusinessHub account, saved businesses, and reviews" />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

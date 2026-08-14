@@ -53,7 +53,7 @@ const AdminPage = () => {
     return (
       <>
         <Helmet>
-          <title>Access Denied - d4desi</title>
+          <title>Access Denied - BusinessHub</title>
         </Helmet>
         <div className="min-h-screen flex flex-col bg-background">
           <Header />
@@ -133,8 +133,8 @@ const AdminPage = () => {
   return (
     <>
       <Helmet>
-        <title>Admin Panel - d4desi</title>
-        <meta name="description" content="Admin panel for managing d4desi business listings" />
+        <title>Admin Panel - BusinessHub</title>
+        <meta name="description" content="Admin panel for managing BusinessHub business listings" />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

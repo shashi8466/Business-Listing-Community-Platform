@@ -7,8 +7,8 @@ const AboutPage = () => {
   return (
     <>
       <Helmet>
-        <title>About Us - d4desi</title>
-        <meta name="description" content="Learn about d4desi - the community-driven marketplace connecting Desi businesses with customers across the United States." />
+        <title>About Us - BusinessHub</title>
+        <meta name="description" content="Learn about BusinessHub - the community-driven marketplace connecting Desi businesses with customers across the United States." />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">
@@ -18,7 +18,7 @@ const AboutPage = () => {
           {/* Hero */}
           <section className="bg-gradient-hero py-20 text-primary-foreground">
             <div className="container mx-auto px-4 text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">About d4desi</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">About BusinessHub</h1>
               <p className="text-xl opacity-90 max-w-2xl mx-auto">
                 Connecting the Desi community across America
               </p>
@@ -31,7 +31,7 @@ const AboutPage = () => {
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold text-foreground mb-4">Our Mission</h2>
                 <p className="text-lg text-muted-foreground">
-                  d4desi is a comprehensive, community-driven marketplace platform designed for Desi communities across the United States. We bridge the gap between trusted Desi businesses, service providers, and community members seeking reliable local services.
+                  BusinessHub is a comprehensive, community-driven marketplace platform designed for Desi communities across the United States. We bridge the gap between trusted Desi businesses, service providers, and community members seeking reliable local services.
                 </p>
               </div>
 
@@ -83,7 +83,7 @@ const AboutPage = () => {
             <div className="container mx-auto px-4 max-w-4xl text-center">
               <h2 className="text-3xl font-bold text-foreground mb-4">Our Story</h2>
               <p className="text-lg text-muted-foreground mb-6">
-                Founded in 2024, d4desi was born from a simple idea: make it easier for the Desi community to find and support local businesses. What started as a small directory has grown into a thriving marketplace connecting thousands of businesses with customers every day.
+                Founded in 2024, BusinessHub was born from a simple idea: make it easier for the Desi community to find and support local businesses. What started as a small directory has grown into a thriving marketplace connecting thousands of businesses with customers every day.
               </p>
               <p className="text-lg text-muted-foreground">
                 Our team is passionate about serving the Desi community and empowering entrepreneurs to grow their businesses. We're committed to building a platform that reflects our culture, values, and aspirations.

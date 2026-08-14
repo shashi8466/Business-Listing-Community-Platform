@@ -12,7 +12,7 @@ const CommunitiesInterestsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Communities by Interest | d4desi</title>
+        <title>Communities by Interest | BusinessHub</title>
         <meta
           name="description"
           content="Find Desi communities by interest. Connect with people who share your passions."

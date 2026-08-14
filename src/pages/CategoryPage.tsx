@@ -33,7 +33,7 @@ const CategoryPage = () => {
   return (
     <>
       <Helmet>
-        <title>{category.name} - Desi Businesses | d4desi</title>
+        <title>{category.name} - Desi Businesses | BusinessHub</title>
         <meta name="description" content={`Find trusted Desi ${category.name.toLowerCase()} across the United States. Browse ratings, reviews, and contact info.`} />
       </Helmet>
 

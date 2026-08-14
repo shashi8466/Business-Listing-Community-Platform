@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePlatformSettings } from "@/contexts/PlatformSettingsContext";
 import { useToast } from "@/hooks/use-toast";
 
 const sidebarLinks = [
@@ -28,6 +29,7 @@ export const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, userProfile } = useAuth();
+  const { settings } = usePlatformSettings();
   const { toast } = useToast();
 
   const handleSignOut = async () => {
@@ -40,13 +42,19 @@ export const AdminLayout = () => {
     <div className="flex flex-col h-full">
       <div className="p-6">
         <Link to="/" className="flex items-center gap-2 mb-8">
-          <span className="text-2xl font-bold">
-            <span className="text-primary">d4</span>
-            <span className="text-secondary">desi</span>
-          </span>
+          <img 
+            src={settings?.branding?.logoUrl || "/logo.png"} 
+            alt={`${settings?.branding?.applicationName || 'BusinessHub'} Logo`} 
+            className="w-auto"
+            style={{
+              height: settings?.branding?.logoSize ? `${settings.branding.logoSize}px` : '80px', // Default increased size
+              border: settings?.branding?.logoBorder ? '5px solid var(--border)' : 'none',
+              borderRadius: '5px'
+            }}
+          />
         </Link>
         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-          Admin Console
+          Admin Dashboard
         </div>
         <nav className="space-y-1">
           {sidebarLinks.map((link) => {
@@ -84,7 +92,7 @@ export const AdminLayout = () => {
         </div>
         <div className="space-y-1">
           <Link
-            to="/profile"
+            to="/admin/profile"
             onClick={() => setIsMobileMenuOpen(false)}
             className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
           >
@@ -113,10 +121,16 @@ export const AdminLayout = () => {
       {/* Mobile Header & Sidebar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border z-50 flex items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold">
-            <span className="text-primary">d4</span>
-            <span className="text-secondary">desi</span>
-          </span>
+          <img 
+            src={settings?.branding?.logoUrl || "/logo.png"} 
+            alt={`${settings?.branding?.applicationName || 'BusinessHub'} Logo`} 
+            className="w-auto"
+            style={{
+              height: settings?.branding?.logoSize ? `${settings.branding.logoSize}px` : '60px', // Default increased size
+              border: settings?.branding?.logoBorder ? '5px solid var(--border)' : 'none',
+              borderRadius: '5px'
+            }}
+          />
         </Link>
         <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(true)}>
           <Menu className="h-6 w-6" />

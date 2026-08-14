@@ -131,14 +131,14 @@ const SearchPage = () => {
       <Helmet>
         <title>
           {searchQuery
-            ? `Search: ${searchQuery} - d4desi`
-            : "Search Businesses - d4desi"}
+            ? `Search: ${searchQuery} - BusinessHub`
+            : "Search Businesses - BusinessHub"}
         </title>
         <meta
           name="description"
           content="Search for Desi businesses and services across the United States"
         />
-        <link rel="canonical" href="https://d4desi.com/search" />
+        <link rel="canonical" href="https://BusinessHub.com/search" />
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background">

@@ -9,7 +9,7 @@ const CitiesPage = () => {
   return (
     <>
       <Helmet>
-        <title>Browse by City - d4desi</title>
+        <title>Browse by City - BusinessHub</title>
         <meta
           name="description"
           content="Find Desi businesses and services in cities across the United States"

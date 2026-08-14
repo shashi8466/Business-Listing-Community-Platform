@@ -6,7 +6,7 @@ const AdminInquiriesPage = () => {
   return (
     <>
       <Helmet>
-        <title>Inquiries | Admin | d4desi</title>
+        <title>Inquiries | Admin | BusinessHub</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
